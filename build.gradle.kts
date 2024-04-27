@@ -159,6 +159,31 @@ tasks {
                 .any { it.matches(candidate.version) }
         }
     }
+
+    val updateReadme by registering {
+        val readmeFile = rootDir.resolve("README.md")
+        val version: String by project
+
+        inputs.property("libVersion", version)
+        outputs.file(readmeFile)
+
+        doLast {
+            val content = readmeFile.readText()
+            val oldVersion =
+                """id\("com.cmgapps.npm.versions"\) version "(.*)"""".toRegex(RegexOption.MULTILINE).find(content)?.let {
+                    it.groupValues[1]
+                } ?: error("Cannot find oldVersion")
+
+            logger.info("Updating README.md version $oldVersion to $version")
+
+            val newContent = content.replace(oldVersion, version)
+            readmeFile.writeText(newContent)
+        }
+    }
+
+    patchChangelog {
+        dependsOn(updateReadme)
+    }
 }
 
 dependencies {
