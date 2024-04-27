@@ -1,4 +1,4 @@
-.gradle
+.gradle/
 .idea/*
 !.idea/codeStyles
 !.idea/copyright
