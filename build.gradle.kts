@@ -21,6 +21,7 @@ plugins {
     kotlin("jvm") version embeddedKotlinVersion
     kotlin("plugin.serialization") version embeddedKotlinVersion
     alias(libs.plugins.versions)
+    id("ktlint")
 }
 
 val pomProperties =
@@ -106,6 +107,10 @@ tasks {
         testClassesDirs = functionalTestSourceSet.output.classesDirs
         classpath = functionalTestSourceSet.runtimeClasspath
         useJUnitPlatform()
+
+        testLogging {
+            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
+        }
     }
 
     check {
