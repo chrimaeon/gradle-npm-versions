@@ -8,6 +8,7 @@ ktor = "2.3.10"
 
 versions = "com.github.ben-manes.versions:0.51.0"
 jetbrains-changelog = "org.jetbrains.changelog:2.2.0"
+pluginPublish = "com.gradle.plugin-publish:1.2.1"
 
 [libraries]
 

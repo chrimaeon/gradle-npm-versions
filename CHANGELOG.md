@@ -4,8 +4,6 @@
 
 ### Added
 
-First iteration - simple `dependencies` check for npm packages
-
 ### Changed
 
 ### Deprecated
@@ -15,3 +13,9 @@ First iteration - simple `dependencies` check for npm packages
 ### Fixed
 
 ### Security
+
+## 0.1.0
+
+### Added
+
+- First iteration - simple `dependencies` check for npm packages
