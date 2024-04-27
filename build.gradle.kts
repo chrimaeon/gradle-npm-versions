@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.versions)
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
+    alias(libs.plugins.pluginPublish)
 }
 
 val pomProperties =
