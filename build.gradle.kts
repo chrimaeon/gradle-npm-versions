@@ -22,6 +22,7 @@ plugins {
     kotlin("plugin.serialization") version embeddedKotlinVersion
     alias(libs.plugins.versions)
     id("ktlint")
+    alias(libs.plugins.jetbrains.changelog)
 }
 
 val pomProperties =
@@ -94,6 +95,11 @@ publishing {
             artifactId = pomArtifactId
         }
     }
+}
+
+changelog {
+    version.set(versionName)
+    header.set(provider { version.get() })
 }
 
 tasks {
