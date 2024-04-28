@@ -7,12 +7,15 @@
 package com.cmgapps.gradle.service
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.appendPathSegments
 import io.ktor.http.headers
@@ -25,9 +28,9 @@ import org.gradle.api.services.BuildServiceParameters
 import org.slf4j.LoggerFactory
 
 abstract class NetworkService : BuildService<NetworkService.Params> {
-    private val logger = LoggerFactory.getLogger("NetworkService")
+    private val logger = LoggerFactory.getLogger(this::class.java)
     private val client: HttpClient =
-        HttpClient {
+        HttpClient(parameters.engine.getOrElse(Apache5.create())) {
             install(ContentNegotiation) {
                 json(
                     Json {
@@ -61,7 +64,7 @@ abstract class NetworkService : BuildService<NetworkService.Params> {
             }
         }
 
-    suspend fun get(vararg pathSegments: String) =
+    suspend fun get(vararg pathSegments: String): HttpResponse =
         client.get {
             url {
                 appendPathSegments(*pathSegments)
@@ -71,5 +74,6 @@ abstract class NetworkService : BuildService<NetworkService.Params> {
     interface Params : BuildServiceParameters {
         val baseUrl: Property<String>
         val additionalHeaders: MapProperty<String, String>
+        val engine: Property<HttpClientEngine>
     }
 }
