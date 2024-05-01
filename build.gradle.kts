@@ -80,13 +80,13 @@ idea {
 }
 
 java {
-    targetCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 kotlin {
     jvmToolchain(17)
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_1_8)
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -171,9 +171,10 @@ tasks {
         doLast {
             val content = readmeFile.readText()
             val oldVersion =
-                """id\("com.cmgapps.npm.versions"\) version "(.*)"""".toRegex(RegexOption.MULTILINE).find(content)?.let {
-                    it.groupValues[1]
-                } ?: error("Cannot find oldVersion")
+                """id\("com.cmgapps.npm.versions"\) version "(.*)"""".toRegex(RegexOption.MULTILINE).find(content)
+                    ?.let {
+                        it.groupValues[1]
+                    } ?: error("Cannot find oldVersion")
 
             logger.info("Updating README.md version $oldVersion to $version")
 
@@ -199,6 +200,8 @@ dependencies {
     }
     testImplementation(libs.hamcrest)
     testImplementation(libs.kotlin.gradle)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     "functionalTestImplementation"(platform(libs.junit.bom))
     "functionalTestImplementation"(libs.junit.jupiter) {
@@ -206,5 +209,4 @@ dependencies {
     }
     "functionalTestCompileOnly"(libs.kotlin.gradle)
     "functionalTestImplementation"(libs.hamcrest)
-    "functionalTestImplementation"(gradleTestKit())
 }

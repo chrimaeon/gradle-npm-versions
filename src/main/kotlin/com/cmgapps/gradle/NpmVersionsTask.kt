@@ -66,11 +66,8 @@ abstract class NpmVersionTask
                 workQueue.enqueue(it)
             }
 
-            try {
-                workQueue.await()
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-            }
+            workQueue.await()
+
             val outputDirectoryFile = outputDirectory.get().asFile
 
             val (upgradable, latest) =
@@ -94,8 +91,6 @@ abstract class NpmVersionTask
                     logger.lifecycle(" · {} [{} -> {}]", it.name, it.currentVersion, it.availableVersion)
                 }
             }
-
-            outputDirectoryFile.delete()
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
