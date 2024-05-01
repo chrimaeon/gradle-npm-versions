@@ -72,7 +72,7 @@ apply plugin: 'com.cmgapps.npm.versions'
 ```
 </details>
 
-### Tasks
+### Task
 
 Applying the plugin will create tasks to check for NPM Package Version
 
@@ -80,6 +80,22 @@ Applying the plugin will create tasks to check for NPM Package Version
 
 This will check the [NPM](https://www.npmjs.com/) Registry for the latest version available for
 your `npm` dependencies.
+
+### Output
+
+```text
+┌──────────────┐
+│ NPM Packages │
+└──────────────┘
+
+The following packages are using the latest version:
+ · bootstrap:5.3.3
+
+The following packages have updated versions:
+ · kotlin [1.0 -> 1.9.23]
+
+```
+
 
 ## License
 
