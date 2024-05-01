@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg?style=for-the-badge)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Gradle Plugin](https://img.shields.io/badge/Gradle-8.0%2B-%2302303A.svg?style=for-the-badge&logo=Gradle)](https://gradle.org/)
-[![gradlePluginPortal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/cmgapps/npm/versions/com.cmgapps.npm.versions.gradle.plugin/maven-metadata.xml.svg?label=Gradle%20Plugin%20Portal&style=for-the-badge&logo=Gradle)](https://plugins.gradle.org/plugin/com.cmgapps.licenses)
+[![gradlePluginPortal](https://img.shields.io/gradle-plugin-portal/v/com.cmgapps.npm.versions?label=Gradle%20Plugin%20Portal&style=for-the-badge&logo=Gradle)](https://plugins.gradle.org/plugin/com.cmgapps.licenses)
 
 This Gradle plugin provides a task to check NPM package version for your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) project.
 
