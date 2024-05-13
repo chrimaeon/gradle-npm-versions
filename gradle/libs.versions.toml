@@ -2,7 +2,7 @@
 
 kotlin = "1.9.23"
 gradle = "8.7"
-ktor = "2.3.10"
+ktor = "2.3.11"
 
 [plugins]
 
