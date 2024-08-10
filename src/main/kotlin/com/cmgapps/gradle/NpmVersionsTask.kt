@@ -58,20 +58,23 @@ abstract class NpmVersionTask
         fun action() {
             val workQueue = workerExecutor.noIsolation()
 
-            dependenciesSetProviders.fold(mutableListOf<NpmDependency>()) { acc, provider ->
-                acc.apply {
-                    addAll(provider.get().filterIsInstance<NpmDependency>())
+            dependenciesSetProviders
+                .fold(mutableListOf<NpmDependency>()) { acc, provider ->
+                    acc.apply {
+                        addAll(provider.get().filterIsInstance<NpmDependency>())
+                    }
+                }.forEach {
+                    workQueue.enqueue(it)
                 }
-            }.forEach {
-                workQueue.enqueue(it)
-            }
 
             workQueue.await()
 
             val outputDirectoryFile = outputDirectory.get().asFile
 
             val (upgradable, latest) =
-                outputDirectoryFile.walkTopDown().filter { it.isFile }
+                outputDirectoryFile
+                    .walkTopDown()
+                    .filter { it.isFile }
                     .map { Json.decodeFromStream<Package>(it.inputStream()) }
                     .partition { ComparableVersion(it.currentVersion) < ComparableVersion(it.availableVersion) }
 
@@ -80,14 +83,14 @@ abstract class NpmVersionTask
             logger.lifecycle("└──────────────┘\n")
             if (latest.isNotEmpty()) {
                 logger.lifecycle("The following packages are using the latest version:")
-                latest.forEach {
+                latest.sortedBy { it.name }.forEach {
                     logger.lifecycle(" · {}:{}", it.name, it.currentVersion)
                 }
             }
 
             if (upgradable.isNotEmpty()) {
                 logger.lifecycle("\nThe following packages have updated versions:")
-                upgradable.forEach {
+                upgradable.sortedBy { it.name }.forEach {
                     logger.lifecycle(" · {} [{} -> {}]", it.name, it.currentVersion, it.availableVersion)
                 }
             }
@@ -127,9 +130,11 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
         }
     }
 
-    private suspend fun getLatestVersion(packageName: String): NpmResponse {
-        return parameters.networkService.get().get(packageName, "latest").body()
-    }
+    private suspend fun getLatestVersion(packageName: String): NpmResponse =
+        parameters.networkService
+            .get()
+            .get(packageName, "latest")
+            .body()
 
     interface Params : WorkParameters {
         val dependencyName: Property<String>
