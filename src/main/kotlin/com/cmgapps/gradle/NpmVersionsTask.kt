@@ -10,6 +10,7 @@ import com.cmgapps.gradle.model.NpmResponse
 import com.cmgapps.gradle.model.Package
 import com.cmgapps.gradle.reporter.TextReporter
 import com.cmgapps.gradle.service.NetworkService
+import groovy.lang.Closure
 import io.ktor.client.call.body
 import io.ktor.http.encodeURLPathPart
 import kotlinx.coroutines.runBlocking
@@ -18,16 +19,26 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.reporting.Report
+import org.gradle.api.reporting.ReportContainer
+import org.gradle.api.reporting.Reporting
+import org.gradle.api.reporting.SingleFileReport
+import org.gradle.api.reporting.internal.TaskGeneratedSingleFileReport
+import org.gradle.api.reporting.internal.TaskReportContainer
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkQueue
@@ -36,16 +47,37 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import java.io.FileOutputStream
 import javax.inject.Inject
 
+interface ReporterContainer : ReportContainer<Report> {
+    @get:Internal
+    val plainText: SingleFileReport
+}
+
+private const val PLAIN_TEXT_REPORT_NAME = "plainText"
+
+class ReporterContainerImpl(
+    task: Task,
+    collectionCallbackActionDecorator: CollectionCallbackActionDecorator,
+) : TaskReportContainer<Report>(Report::class.java, task, collectionCallbackActionDecorator),
+    ReporterContainer {
+    init {
+        add(TaskGeneratedSingleFileReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
+    }
+
+    override val plainText: SingleFileReport
+        get() = getByName(PLAIN_TEXT_REPORT_NAME) as SingleFileReport
+}
+
 abstract class NpmVersionTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
         objects: ObjectFactory,
-    ) : DefaultTask() {
+    ) : DefaultTask(),
+        Reporting<ReporterContainer> {
         private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
 
         @get:Internal
-        abstract val networkService: Property<NetworkService>
+        val networkService: Property<NetworkService> = objects.property()
 
         @get:OutputDirectory
         val outputDirectory: DirectoryProperty = objects.directoryProperty()
@@ -79,23 +111,24 @@ abstract class NpmVersionTask
                     .map { Json.decodeFromStream<Package>(it.inputStream()) }
                     .partition { ComparableVersion(it.currentVersion) < ComparableVersion(it.availableVersion) }
 
-            val reporter = TextReporter(outdated = outdated, latest = latest)
+            val textReporter = TextReporter(outdated = outdated, latest = latest)
 
-            reporter.writePackages(System.out)
-            val outputDirectory =
-                project.layout.buildDirectory
-                    .dir("npmVersions")
-                    .get()
-                    .asFile
+            textReporter.writePackages(System.out)
 
-            outputDirectory.mkdirs()
-            outputDirectory
-                .resolve("report.txt")
-                .outputStream()
-                .buffered()
-                .use {
-                    reporter.writePackages(it)
+            reports.filter { it.required.get() }.forEach { report ->
+                when (report.name) {
+                    PLAIN_TEXT_REPORT_NAME -> {
+                        if (report.required.get()) {
+                            val file = report.outputLocation.get().asFile
+                            logger.info("Writing plain text report to ${file.absolutePath}")
+                            file.parentFile.mkdirs()
+                            file.outputStream().use {
+                                textReporter.writePackages(it)
+                            }
+                        }
+                    }
                 }
+            }
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
@@ -106,6 +139,21 @@ abstract class NpmVersionTask
                 networkService.set(this@NpmVersionTask.networkService)
             }
         }
+
+        private val _reports: ReporterContainer = ReporterContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
+
+        @Internal
+        override fun getReports() = _reports
+
+        override fun reports(closure: Closure<*>): ReporterContainer =
+            reports.apply {
+                project.configure(this, closure)
+            }
+
+        override fun reports(configureAction: Action<in ReporterContainer>): ReporterContainer =
+            reports.apply {
+                configureAction.execute(this)
+            }
     }
 
 abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> {

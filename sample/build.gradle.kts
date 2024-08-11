@@ -41,3 +41,10 @@ kotlin {
         }
     }
 }
+
+npmVersions {
+    plainText {
+        enabled.set(true)
+        outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
+    }
+}

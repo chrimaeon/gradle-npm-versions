@@ -9,14 +9,14 @@ package com.cmgapps.gradle.reporter
 import com.cmgapps.gradle.model.Package
 import java.io.PrintStream
 
-interface Reporter {
+internal interface Reporter {
     fun write(
         outputStream: PrintStream,
         text: String,
     )
 }
 
-abstract class PackageReporter(
+internal abstract class PackageReporter(
     protected val outdated: List<Package>,
     protected val latest: List<Package>,
 ) : Reporter

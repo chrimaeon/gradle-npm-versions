@@ -10,7 +10,7 @@ import com.cmgapps.gradle.model.Package
 import java.io.OutputStream
 import java.io.PrintStream
 
-class TextReporter(
+internal class TextReporter(
     outdated: List<Package>,
     latest: List<Package>,
 ) : PackageReporter(outdated, latest) {

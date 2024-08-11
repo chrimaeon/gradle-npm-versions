@@ -10,6 +10,7 @@ import com.cmgapps.gradle.service.NetworkService
 import io.ktor.http.HttpHeaders
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -19,6 +20,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 class NpmVersionsPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
+            val npmVersionsExtension = extensions.create<NpmVersionsExtension>("npmVersions")
+
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 val multiplatform = target.extensions.getByType<KotlinMultiplatformExtension>()
 
@@ -38,6 +41,8 @@ class NpmVersionsPlugin : Plugin<Project> {
                         outputDirectory.set(layout.buildDirectory.dir("intermediates/gradle-npm-version"))
                         networkService.set(serviceProvider)
                         usesService(serviceProvider)
+                        reports.plainText.required.set(npmVersionsExtension.plainText.enabled)
+                        reports.plainText.outputLocation.set(npmVersionsExtension.plainText.outputFile)
                     }
 
                 taskProvider.configure {
