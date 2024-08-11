@@ -26,7 +26,8 @@ class NpmVersionTaskShould {
     @BeforeEach
     fun setUp() {
         project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .withProjectDir(testProjectDir.toFile())
                 .build()
 

@@ -77,7 +77,8 @@ class NpmVersionsPluginShould {
         val task = ":npmVersions"
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .withProjectDir(testProjectDir.toFile())
                 .withArguments(task)
                 .withPluginClasspath()

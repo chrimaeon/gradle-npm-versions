@@ -86,7 +86,8 @@ class CheckNpmPackageActionShould {
                                 set(outputDir.toFile())
                             }
                         override val networkService =
-                            project.objects.property<NetworkService>()
+                            project.objects
+                                .property<NetworkService>()
                                 .value(networkService)
                     }
             }
