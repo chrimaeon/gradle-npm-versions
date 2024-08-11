@@ -10,6 +10,7 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -31,7 +32,7 @@ class NpmVersionTaskShould {
                 .withProjectDir(testProjectDir.toFile())
                 .build()
 
-        project.plugins.apply(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMultiplatformPlugin::class.java)
+        project.plugins.apply(KotlinMetadataTarget.METADATA_TARGET_NAME)
     }
 
     @Test

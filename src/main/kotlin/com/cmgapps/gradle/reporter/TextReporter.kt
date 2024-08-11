@@ -34,7 +34,10 @@ class TextReporter(
             }
 
             if (outdated.isNotEmpty()) {
-                write(printStream, "\nThe following packages have updated versions:")
+                if (latest.isNotEmpty()) {
+                    write(printStream, "")
+                }
+                write(printStream, "The following packages have updated versions:")
                 outdated.sortedBy { it.name }.forEach {
                     write(printStream, " \u2022 ${it.name} [${it.currentVersion} -> ${it.availableVersion}]")
                 }
