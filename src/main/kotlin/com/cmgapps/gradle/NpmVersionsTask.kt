@@ -8,6 +8,7 @@ package com.cmgapps.gradle
 
 import com.cmgapps.gradle.model.NpmResponse
 import com.cmgapps.gradle.model.Package
+import com.cmgapps.gradle.reporter.TextReporter
 import com.cmgapps.gradle.service.NetworkService
 import io.ktor.client.call.body
 import io.ktor.http.encodeURLPathPart
@@ -71,29 +72,30 @@ abstract class NpmVersionTask
 
             val outputDirectoryFile = outputDirectory.get().asFile
 
-            val (upgradable, latest) =
+            val (outdated, latest) =
                 outputDirectoryFile
                     .walkTopDown()
                     .filter { it.isFile }
                     .map { Json.decodeFromStream<Package>(it.inputStream()) }
                     .partition { ComparableVersion(it.currentVersion) < ComparableVersion(it.availableVersion) }
 
-            logger.lifecycle("┌──────────────┐")
-            logger.lifecycle("│ NPM Packages │")
-            logger.lifecycle("└──────────────┘\n")
-            if (latest.isNotEmpty()) {
-                logger.lifecycle("The following packages are using the latest version:")
-                latest.sortedBy { it.name }.forEach {
-                    logger.lifecycle(" · {}:{}", it.name, it.currentVersion)
-                }
-            }
+            val reporter = TextReporter(outdated = outdated, latest = latest)
 
-            if (upgradable.isNotEmpty()) {
-                logger.lifecycle("\nThe following packages have updated versions:")
-                upgradable.sortedBy { it.name }.forEach {
-                    logger.lifecycle(" · {} [{} -> {}]", it.name, it.currentVersion, it.availableVersion)
+            reporter.writePackages(System.out)
+            val outputDirectory =
+                project.layout.buildDirectory
+                    .dir("npmVersions")
+                    .get()
+                    .asFile
+
+            outputDirectory.mkdirs()
+            outputDirectory
+                .resolve("report.txt")
+                .outputStream()
+                .buffered()
+                .use {
+                    reporter.writePackages(it)
                 }
-            }
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
