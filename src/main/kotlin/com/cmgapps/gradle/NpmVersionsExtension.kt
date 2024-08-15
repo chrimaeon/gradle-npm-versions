@@ -29,9 +29,18 @@ abstract class NpmVersionsExtension
                     ),
             )
 
-        fun plainText(action: Action<Reporter>) {
-            action.execute(plainText)
-        }
+        fun plainText(action: Action<in Reporter>) = action.execute(plainText)
+
+        val json: Reporter =
+            Reporter(
+                enabled = objects.property<Boolean>().convention(false),
+                outputFile =
+                    objects.fileProperty().convention(
+                        project.layout.buildDirectory.file("npmVersions/report.json"),
+                    ),
+            )
+
+        fun json(action: Action<in Reporter>) = action.execute(json)
     }
 
 class Reporter(

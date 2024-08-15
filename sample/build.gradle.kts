@@ -47,4 +47,7 @@ npmVersions {
         enabled.set(true)
         outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
     }
+    json {
+        enabled.set(true)
+    }
 }

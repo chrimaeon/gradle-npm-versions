@@ -8,6 +8,8 @@ package com.cmgapps.gradle
 
 import com.cmgapps.gradle.model.NpmResponse
 import com.cmgapps.gradle.model.Package
+import com.cmgapps.gradle.reporter.JsonReporter
+import com.cmgapps.gradle.reporter.PackageReporter
 import com.cmgapps.gradle.reporter.TextReporter
 import com.cmgapps.gradle.service.NetworkService
 import groovy.lang.Closure
@@ -44,15 +46,20 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
+import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
 interface ReporterContainer : ReportContainer<Report> {
     @get:Internal
     val plainText: SingleFileReport
+
+    @get:Internal
+    val json: SingleFileReport
 }
 
-private const val PLAIN_TEXT_REPORT_NAME = "plainText"
+internal const val PLAIN_TEXT_REPORT_NAME = "plainText"
+internal const val JSON_REPORT_NAME = "json"
 
 class ReporterContainerImpl(
     task: Task,
@@ -61,10 +68,14 @@ class ReporterContainerImpl(
     ReporterContainer {
     init {
         add(TaskGeneratedSingleFileReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
+        add(TaskGeneratedSingleFileReport::class.java, JSON_REPORT_NAME, task)
     }
 
     override val plainText: SingleFileReport
         get() = getByName(PLAIN_TEXT_REPORT_NAME) as SingleFileReport
+
+    override val json: SingleFileReport
+        get() = getByName(JSON_REPORT_NAME) as SingleFileReport
 }
 
 abstract class NpmVersionTask
@@ -80,7 +91,8 @@ abstract class NpmVersionTask
         val networkService: Property<NetworkService> = objects.property()
 
         @get:OutputDirectory
-        val outputDirectory: DirectoryProperty = objects.directoryProperty()
+        val outputDirectory: DirectoryProperty =
+            objects.directoryProperty().convention(project.layout.buildDirectory.dir("npm-versions/dependencies"))
 
         fun configurationToCheck(configuration: Provider<Configuration>) {
             dependenciesSetProviders.add(configuration.map { it.allDependencies })
@@ -116,18 +128,22 @@ abstract class NpmVersionTask
             textReporter.writePackages(System.out)
 
             reports.filter { it.required.get() }.forEach { report ->
+                val location = report.outputLocation.get().asFile
                 when (report.name) {
-                    PLAIN_TEXT_REPORT_NAME -> {
-                        if (report.required.get()) {
-                            val file = report.outputLocation.get().asFile
-                            logger.info("Writing plain text report to ${file.absolutePath}")
-                            file.parentFile.mkdirs()
-                            file.outputStream().use {
-                                textReporter.writePackages(it)
-                            }
-                        }
-                    }
+                    PLAIN_TEXT_REPORT_NAME ->
+                        textReporter.writeTo(location)
+
+                    JSON_REPORT_NAME -> JsonReporter(outdated = outdated, latest = latest).writeTo(location)
+                    else -> throw IllegalStateException("${report.name} report is not configured")
                 }
+            }
+        }
+
+        private fun PackageReporter.writeTo(file: File) {
+            logger.info("Writing ${this::class.simpleName} to ${file.absolutePath}")
+            file.parentFile.mkdirs()
+            file.outputStream().use {
+                writePackages(it)
             }
         }
 

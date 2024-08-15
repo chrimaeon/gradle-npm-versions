@@ -7,6 +7,7 @@
 package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.model.Package
+import java.io.OutputStream
 import java.io.PrintStream
 
 internal interface Reporter {
@@ -19,4 +20,6 @@ internal interface Reporter {
 internal abstract class PackageReporter(
     protected val outdated: List<Package>,
     protected val latest: List<Package>,
-) : Reporter
+) : Reporter {
+    abstract fun writePackages(outputStream: OutputStream)
+}

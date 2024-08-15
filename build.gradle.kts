@@ -213,6 +213,7 @@ dependencies {
     "functionalTestImplementation"(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
-    "functionalTestCompileOnly"(libs.kotlin.gradle)
+    "functionalTestImplementation"(libs.kotlin.gradle)
     "functionalTestImplementation"(libs.hamcrest)
+    "functionalTestImplementation"(gradleTestKit())
 }

@@ -29,40 +29,41 @@ import org.slf4j.LoggerFactory
 
 abstract class NetworkService : BuildService<NetworkService.Params> {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val client: HttpClient =
-        HttpClient(parameters.engine.getOrElse(Apache5.create())) {
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                    },
-                )
-            }
-            defaultRequest {
-                url(parameters.baseUrl.get())
-                headers.appendAll(
-                    headers {
-                        parameters.additionalHeaders.get().forEach(this::append)
-                    },
-                )
-            }
-            install(Logging) {
-                this.level =
-                    when {
-                        this@NetworkService.logger.isTraceEnabled -> LogLevel.ALL
-                        this@NetworkService.logger.isDebugEnabled -> LogLevel.BODY
-                        this@NetworkService.logger.isInfoEnabled -> LogLevel.HEADERS
-                        else -> LogLevel.NONE
-                    }
-                this.logger =
-                    object : Logger {
-                        override fun log(message: String) {
-                            this@NetworkService.logger.info(message)
+    private val client: HttpClient
+        get() =
+            HttpClient(parameters.engine.getOrElse(Apache5.create())) {
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            ignoreUnknownKeys = true
+                        },
+                    )
+                }
+                defaultRequest {
+                    url(parameters.baseUrl.get())
+                    headers.appendAll(
+                        headers {
+                            parameters.additionalHeaders.get().forEach(this::append)
+                        },
+                    )
+                }
+                install(Logging) {
+                    this.level =
+                        when {
+                            this@NetworkService.logger.isTraceEnabled -> LogLevel.ALL
+                            this@NetworkService.logger.isDebugEnabled -> LogLevel.BODY
+                            this@NetworkService.logger.isInfoEnabled -> LogLevel.HEADERS
+                            else -> LogLevel.NONE
                         }
-                    }
-                this.sanitizeHeader { header -> header == HttpHeaders.Authorization }
+                    this.logger =
+                        object : Logger {
+                            override fun log(message: String) {
+                                this@NetworkService.logger.info(message)
+                            }
+                        }
+                    this.sanitizeHeader { header -> header == HttpHeaders.Authorization }
+                }
             }
-        }
 
     suspend fun get(vararg pathSegments: String): HttpResponse =
         client.get {

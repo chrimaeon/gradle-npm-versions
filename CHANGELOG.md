@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Plain text file report
+- JSON file report
 
 ### Changed
 

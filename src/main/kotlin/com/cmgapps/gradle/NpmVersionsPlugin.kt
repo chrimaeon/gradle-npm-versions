@@ -10,6 +10,7 @@ import com.cmgapps.gradle.service.NetworkService
 import io.ktor.http.HttpHeaders
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.reporting.SingleFileReport
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -41,8 +42,13 @@ class NpmVersionsPlugin : Plugin<Project> {
                         outputDirectory.set(layout.buildDirectory.dir("intermediates/gradle-npm-version"))
                         networkService.set(serviceProvider)
                         usesService(serviceProvider)
-                        reports.plainText.required.set(npmVersionsExtension.plainText.enabled)
-                        reports.plainText.outputLocation.set(npmVersionsExtension.plainText.outputFile)
+                        reports.forEach {
+                            when (it.name) {
+                                PLAIN_TEXT_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.plainText)
+                                JSON_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.json)
+                                else -> throw IllegalStateException("report not configuration not provided")
+                            }
+                        }
                     }
 
                 taskProvider.configure {
@@ -63,5 +69,10 @@ class NpmVersionsPlugin : Plugin<Project> {
                 }
             }
         }
+    }
+
+    private fun SingleFileReport.configureReports(reporter: Reporter) {
+        required.set(reporter.enabled)
+        outputLocation.set(reporter.outputFile)
     }
 }

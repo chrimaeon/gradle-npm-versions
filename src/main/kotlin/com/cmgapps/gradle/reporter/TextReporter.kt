@@ -21,7 +21,7 @@ internal class TextReporter(
         outputStream.println(text)
     }
 
-    fun writePackages(outputStream: OutputStream) {
+    override fun writePackages(outputStream: OutputStream) {
         PrintStream(outputStream).use { printStream ->
             write(printStream, "┌──────────────┐")
             write(printStream, "│ NPM Packages │")
