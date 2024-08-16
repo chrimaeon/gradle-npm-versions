@@ -217,6 +217,96 @@ class NpmVersionTaskShould {
             ),
         )
     }
+
+    @Test
+    fun `create html report`() {
+        val outputDir = testProjectDir.resolve("output")
+        val task =
+            project.tasks.create(
+                "npmVersions",
+                NpmVersionTask::class.java,
+                TestWorkExecutor(project),
+                project.objects,
+            )
+
+        val configuration = project.configurations.create("implementation")
+
+        project.dependencies.add(
+            "implementation",
+            NpmDependency(
+                objectFactory = project.objects,
+                name = TEST_DEP_NAME,
+                version = TEST_DEP_VERSION,
+            ),
+        )
+
+        task.outputDirectory.set(outputDir.toFile().apply { mkdirs() })
+
+        val reportOutputFile = outputDir.resolve("report.html")
+
+        task.reports.html.required
+            .set(true)
+        task.reports.html.outputLocation
+            .set(reportOutputFile.toFile())
+
+        task.configurationToCheck(
+            project.provider {
+                configuration
+            },
+        )
+
+        task.action()
+
+        val normalizeCss = javaClass.getResourceAsStream("/normalize.css")!!.bufferedReader().use { it.readText() }
+        val styleCss = javaClass.getResourceAsStream("/style.css")!!.bufferedReader().use { it.readText() }
+
+        val expected =
+            "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "  <head>\n" +
+                "    <title>\n" +
+                "      NPM Versions\n" +
+                "    </title>\n" +
+                "    <style>\n" +
+                "      " + normalizeCss +
+                "\n" +
+                "    </style>\n" +
+                "    <style>\n" +
+                "      " + styleCss +
+                "\n" +
+                "    </style>\n" +
+                "  </head>\n" +
+                "  <body>\n" +
+                "    <h1>\n" +
+                "      NPM Versions\n" +
+                "    </h1>\n" +
+                "    <p>\n" +
+                "      The following packages are using the latest version\n" +
+                "    </p>\n" +
+                "    <table>\n" +
+                "      <tr>\n" +
+                "        <td>\n" +
+                "          $TEST_DEP_NAME\n" +
+                "        </td>\n" +
+                "        <td>\n" +
+                "          $TEST_DEP_VERSION\n" +
+                "        </td>\n" +
+                "      </tr>\n" +
+                "    </table>\n" +
+                "    <p style=\"text-align:right\">\n" +
+                "      <small>\n" +
+                "        Generated with \n" +
+                "        <a href=\"https://plugins.gradle.org/plugin/com.cmgapps.npm.versions\">NPM Versions Gradle Plugin</a>\n" +
+                "      </small>\n" +
+                "    </p>\n" +
+                "  </body>\n" +
+                "</html>\n"
+
+        assertThat(
+            reportOutputFile.toFile().readText(),
+            `is`(expected),
+        )
+    }
 }
 
 private class TestWorkExecutor(

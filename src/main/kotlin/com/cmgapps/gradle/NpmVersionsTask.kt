@@ -8,6 +8,7 @@ package com.cmgapps.gradle
 
 import com.cmgapps.gradle.model.NpmResponse
 import com.cmgapps.gradle.model.Package
+import com.cmgapps.gradle.reporter.HtmlReporter
 import com.cmgapps.gradle.reporter.JsonReporter
 import com.cmgapps.gradle.reporter.PackageReporter
 import com.cmgapps.gradle.reporter.TextReporter
@@ -56,10 +57,14 @@ interface ReporterContainer : ReportContainer<Report> {
 
     @get:Internal
     val json: SingleFileReport
+
+    @get:Internal
+    val html: SingleFileReport
 }
 
 internal const val PLAIN_TEXT_REPORT_NAME = "plainText"
 internal const val JSON_REPORT_NAME = "json"
+internal const val HTML_REPORT_NAME = "html"
 
 class ReporterContainerImpl(
     task: Task,
@@ -69,6 +74,7 @@ class ReporterContainerImpl(
     init {
         add(TaskGeneratedSingleFileReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
         add(TaskGeneratedSingleFileReport::class.java, JSON_REPORT_NAME, task)
+        add(TaskGeneratedSingleFileReport::class.java, HTML_REPORT_NAME, task)
     }
 
     override val plainText: SingleFileReport
@@ -76,6 +82,9 @@ class ReporterContainerImpl(
 
     override val json: SingleFileReport
         get() = getByName(JSON_REPORT_NAME) as SingleFileReport
+
+    override val html: SingleFileReport
+        get() = getByName(HTML_REPORT_NAME) as SingleFileReport
 }
 
 abstract class NpmVersionTask
@@ -134,6 +143,7 @@ abstract class NpmVersionTask
                         textReporter.writeTo(location)
 
                     JSON_REPORT_NAME -> JsonReporter(outdated = outdated, latest = latest).writeTo(location)
+                    HTML_REPORT_NAME -> HtmlReporter(outdated = outdated, latest = latest).writeTo(location)
                     else -> throw IllegalStateException("${report.name} report is not configured")
                 }
             }

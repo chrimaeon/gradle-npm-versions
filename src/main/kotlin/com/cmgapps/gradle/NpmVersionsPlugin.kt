@@ -46,7 +46,8 @@ class NpmVersionsPlugin : Plugin<Project> {
                             when (it.name) {
                                 PLAIN_TEXT_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.plainText)
                                 JSON_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.json)
-                                else -> throw IllegalStateException("report not configuration not provided")
+                                HTML_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.html)
+                                else -> throw IllegalStateException("report configuration not provided")
                             }
                         }
                     }
