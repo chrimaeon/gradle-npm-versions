@@ -5,6 +5,8 @@
 ### Added
 - Plain text file report
 - JSON file report
+- HTML file report
+- XML file report
 
 ### Changed
 
