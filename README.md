@@ -2,9 +2,10 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg?style=for-the-badge)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Gradle Plugin](https://img.shields.io/badge/Gradle-8.0%2B-%2302303A.svg?style=for-the-badge&logo=Gradle)](https://gradle.org/)
-[![gradlePluginPortal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/cmgapps/npm/versions/com.cmgapps.npm.versions.gradle.plugin/maven-metadata.xml.svg?label=Gradle%20Plugin%20Portal&style=for-the-badge&logo=Gradle)](https://plugins.gradle.org/plugin/com.cmgapps.licenses)
+[![gradlePluginPortal](https://img.shields.io/gradle-plugin-portal/v/com.cmgapps.npm.versions?label=Gradle%20Plugin%20Portal&style=for-the-badge&logo=Gradle)](https://plugins.gradle.org/plugin/com.cmgapps.licenses)
 
-This Gradle plugin provides a task to check NPM package version for your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) project.
+This Gradle plugin provides a task to check NPM package version for
+your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) project.
 
 ## Usage
 
@@ -17,9 +18,10 @@ This Gradle plugin provides a task to check NPM package version for your [Kotlin
 
 ```kotlin
 plugins {
-    id("com.cmgapps.npm.versions") version "0.1.0"
+    id("com.cmgapps.npm.versions") version "0.2.0"
 }
 ```
+
 </details>
 
 <details>
@@ -27,9 +29,10 @@ plugins {
 
 ```groovy
 plugins {
-    id 'com.cmgapps.npm.versions' version '0.1.0'
+    id 'com.cmgapps.npm.versions' version '0.2.0'
 }
 ```
+
 </details>
 
 #### Using legacy plugin application
@@ -45,12 +48,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath("com.cmgapps.gradle:gradle-npm-versions-plugin:0.1.0")
+        classpath("com.cmgapps.gradle:gradle-npm-versions-plugin:0.2.0")
     }
 }
 
 apply(plugin = "com.cmgapps.npm.versions")
 ```
+
 </details>
 
 <details>
@@ -64,12 +68,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.cmgapps.gradle:gradle-npm-versions-plugin:0.1.0'
+        classpath 'com.cmgapps.gradle:gradle-npm-versions-plugin:0.2.0'
     }
 }
 
 apply plugin: 'com.cmgapps.npm.versions'
 ```
+
 </details>
 
 ### Task
@@ -81,7 +86,37 @@ Applying the plugin will create tasks to check for NPM Package Version
 This will check the [NPM](https://www.npmjs.com/) Registry for the latest version available for
 your `npm` dependencies.
 
+### Configuration
+
+With the `npmVersions` extension you can enable the file reporters and output file location.
+There are 4 reporter:
+
+- **Plain Text**: Same format as the console output
+- **JSON**: A JSON of the package versions
+- **HTML**: An HTML website
+- **XML**: An XML of the package.
+
+```gradle
+npmVersions {
+    plainText {
+        enabled.set(true)
+        outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
+    }
+    json {
+        enabled.set(true)
+    }
+    html {
+        enabled.set(true)
+    }
+    xml {
+        enabled.set(true)
+    }
+}
+```
+
 ### Output
+
+The console output will look like this:
 
 ```text
 ┌──────────────┐
@@ -95,7 +130,6 @@ The following packages have updated versions:
  · kotlin [1.0 -> 1.9.23]
 
 ```
-
 
 ## License
 

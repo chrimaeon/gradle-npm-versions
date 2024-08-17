@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024. Christian Grach <christian.grach@cmgapps.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.cmgapps.gradle
 
 import com.cmgapps.gradle.model.NpmResponse
@@ -86,7 +92,8 @@ class CheckNpmPackageActionShould {
                                 set(outputDir.toFile())
                             }
                         override val networkService =
-                            project.objects.property<NetworkService>()
+                            project.objects
+                                .property<NetworkService>()
                                 .value(networkService)
                     }
             }

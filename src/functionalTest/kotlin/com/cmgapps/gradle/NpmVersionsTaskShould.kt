@@ -20,7 +20,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 
-class NpmVersionsPluginShould {
+class NpmVersionsTaskShould {
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
     lateinit var testProjectDir: Path
 
@@ -28,15 +28,16 @@ class NpmVersionsPluginShould {
 
     @BeforeEach
     fun setup() {
-        File(testProjectDir.toFile(), "settings.gradle.kts").writeText("rootProject.name = \"gradle-npm-plugin\"")
         buildFile = File(testProjectDir.toFile(), "build.gradle.kts")
 
         @Language("gradle")
         val build =
             """
+            import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
+            
             plugins {
-                id("org.jetbrains.kotlin.multiplatform") version "1.9.23"
-                id("com.cmgapps.npm.versions") version "1.0.0"
+                id("org.jetbrains.kotlin.multiplatform") version "2.0.0" apply false
+                id("com.cmgapps.npm.versions") version "1.0.0" apply false
             }
             
             repositories {
@@ -47,43 +48,45 @@ class NpmVersionsPluginShould {
         buildFile + build
     }
 
-    @Disabled("KotlinMultiplatformExtension not present")
+    @Disabled(
+        "> Could not create task ':runNpmVersions'.\n" +
+            "   > Could not create task of type 'NpmVersionTask'.\n" +
+            "      > Could not generate a decorated class for type NpmVersionTask.\n" +
+            "         > org/jetbrains/kotlin/gradle/targets/js/npm/NpmDependency",
+    )
     @Test
-    fun `report npm packages`() {
+    fun `run task`() {
+        val taskName = "runNpmVersions"
+
         @Language("gradle")
-        val kotlinExtension =
+        val taskConfiguration =
             """
-            kotlin {
-            
-                jvm()
-                js(IR) {
-                    browser()
-                }
-                
-                sourceSets {
-                    named("jsMain") {
-                        dependencies {
-                            implementation("org.apache.commons:commons-csv:1.9.0")
-                            implementation(npm("bootstrap", "5.3.3"))
-                            implementation(npm("kotlin", "1.0"))
-                        }
-                    }
-                }
+
+            val configuration = configurations.create("npmVersionConfig")
+
+            dependencies {
+                add("npmVersionConfig", NpmDependency(
+                    objectFactory = project.objects,
+                    name = "npm-dependency",
+                    version = "1.0.0")
+                )
+            }
+
+            tasks.register<com.cmgapps.gradle.NpmVersionTask>("$taskName") {
+                configurationToCheck(provider { configuration })
             }
             """.trimIndent()
-
-        buildFile + kotlinExtension
-
-        val task = ":npmVersions"
-
+        buildFile + (taskConfiguration)
         val result =
             GradleRunner
                 .create()
                 .withProjectDir(testProjectDir.toFile())
-                .withArguments(task)
+                .withArguments(taskName)
+                .withDebug(true)
                 .withPluginClasspath()
                 .build()
+
         println(result.output)
-        assertThat(result.task(task)?.outcome, `is`(TaskOutcome.FAILED))
+        assertThat(result.task(taskName)?.outcome, `is`(TaskOutcome.SUCCESS))
     }
 }

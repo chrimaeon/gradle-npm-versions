@@ -37,7 +37,24 @@ kotlin {
                 implementation("org.apache.commons:commons-csv:1.9.0")
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("kotlin", "1.0"))
+                implementation(npm("@popperjs/core", "1.0"))
             }
         }
+    }
+}
+
+npmVersions {
+    plainText {
+        enabled.set(true)
+        outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
+    }
+    json {
+        enabled.set(true)
+    }
+    html {
+        enabled.set(true)
+    }
+    xml {
+        enabled.set(true)
     }
 }

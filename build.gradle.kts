@@ -51,7 +51,11 @@ val functionalTestSourceSet: SourceSet =
             srcDir("src/$sourceSetName/kotlin")
         }
         resources {
-            srcDirs(sourceSets.main.get().resources.srcDirs)
+            srcDirs(
+                sourceSets.main
+                    .get()
+                    .resources.srcDirs,
+            )
         }
     }
 
@@ -149,7 +153,7 @@ tasks {
         }
     }
 
-    named<DependencyUpdatesTask>("dependencyUpdates") {
+    withType<DependencyUpdatesTask> {
         revision = "release"
 
         gradleReleaseChannel = GradleReleaseChannel.CURRENT.id
@@ -171,7 +175,9 @@ tasks {
         doLast {
             val content = readmeFile.readText()
             val oldVersion =
-                """id\("com.cmgapps.npm.versions"\) version "(.*)"""".toRegex(RegexOption.MULTILINE).find(content)
+                """id\("com.cmgapps.npm.versions"\) version "(.*)""""
+                    .toRegex(RegexOption.MULTILINE)
+                    .find(content)
                     ?.let {
                         it.groupValues[1]
                     } ?: error("Cannot find oldVersion")
@@ -207,6 +213,7 @@ dependencies {
     "functionalTestImplementation"(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
-    "functionalTestCompileOnly"(libs.kotlin.gradle)
+    "functionalTestImplementation"(libs.kotlin.gradle)
     "functionalTestImplementation"(libs.hamcrest)
+    "functionalTestImplementation"(gradleTestKit())
 }

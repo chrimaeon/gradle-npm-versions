@@ -1,0 +1,20 @@
+/* Copyright (c) 2024. Christian Grach <christian.grach@cmgapps.com> | SPDX-License-Identifier: Apache-2.0 */
+body {
+  font-family: sans-serif;
+  font-size: 16px;
+  margin: 10px;
+}
+
+table {
+  border: 2px solid #aaa;
+  border-collapse: collapse;
+}
+
+td, th {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
