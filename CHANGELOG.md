@@ -3,10 +3,6 @@
 ## Unreleased
 
 ### Added
-- Plain text file report
-- JSON file report
-- HTML file report
-- XML file report
 
 ### Changed
 
@@ -17,6 +13,15 @@
 ### Fixed
 
 ### Security
+
+## 0.2.0
+
+### Added
+
+- Plain text file report
+- JSON file report
+- HTML file report
+- XML file report
 
 ## 0.1.0
 
