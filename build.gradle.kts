@@ -153,7 +153,7 @@ tasks {
         }
     }
 
-    named<DependencyUpdatesTask>("dependencyUpdates") {
+    withType<DependencyUpdatesTask> {
         revision = "release"
 
         gradleReleaseChannel = GradleReleaseChannel.CURRENT.id
