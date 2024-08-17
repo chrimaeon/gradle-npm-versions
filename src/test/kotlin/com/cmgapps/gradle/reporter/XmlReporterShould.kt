@@ -71,8 +71,7 @@ class XmlReporterShould : OutputStreamTest() {
                 "      latest list\n" +
                 "    </package>\n" +
                 "  </latest>\n" +
-                "  <outdated>\n" +
-                "  </outdated>\n" +
+                "  <outdated/>\n" +
                 "</packages>\n"
 
         assertThat(outputStream.asString(), `is`(expected))
