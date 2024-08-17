@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2024. Christian Grach <christian.grach@cmgapps.com>
+  ~
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<xs:schema xmlns:cmg="https://www.cmgapps.com"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           targetNamespace="https://www.cmgapps.com">
+    <xs:element
+        name="packages"
+        type="cmg:packagesType"/>
+    <xs:complexType name="outdatedPackageType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute
+                    type="xs:string"
+                    name="latestVersion"
+                    use="required"/>
+                <xs:attribute
+                    type="xs:string"
+                    name="currentVersion"
+                    use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="outdatedType">
+        <xs:sequence>
+            <xs:element
+                type="cmg:outdatedPackageType"
+                name="package"
+                maxOccurs="unbounded"
+                minOccurs="0"
+            />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="latestPackageType">
+        <xs:simpleContent>
+            <xs:extension
+                base="xs:string">
+                <xs:attribute
+                    type="xs:string"
+                    name="currentVersion"
+                    use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="latestType">
+        <xs:sequence>
+            <xs:element
+                type="cmg:latestPackageType"
+                name="package"
+                maxOccurs="unbounded"
+                minOccurs="0"
+            />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="packagesType">
+        <xs:all>
+            <xs:element
+                type="cmg:latestType"
+                name="latest"
+            />
+            <xs:element
+                type="cmg:outdatedType"
+                name="outdated"/>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>

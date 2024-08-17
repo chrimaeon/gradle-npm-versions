@@ -12,6 +12,7 @@ import com.cmgapps.gradle.reporter.HtmlReporter
 import com.cmgapps.gradle.reporter.JsonReporter
 import com.cmgapps.gradle.reporter.PackageReporter
 import com.cmgapps.gradle.reporter.TextReporter
+import com.cmgapps.gradle.reporter.XmlReporter
 import com.cmgapps.gradle.service.NetworkService
 import groovy.lang.Closure
 import io.ktor.client.call.body
@@ -60,11 +61,15 @@ interface ReporterContainer : ReportContainer<Report> {
 
     @get:Internal
     val html: SingleFileReport
+
+    @get:Internal
+    val xml: SingleFileReport
 }
 
 internal const val PLAIN_TEXT_REPORT_NAME = "plainText"
 internal const val JSON_REPORT_NAME = "json"
 internal const val HTML_REPORT_NAME = "html"
+internal const val XML_REPORT_NAME = "xml"
 
 class ReporterContainerImpl(
     task: Task,
@@ -75,6 +80,7 @@ class ReporterContainerImpl(
         add(TaskGeneratedSingleFileReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
         add(TaskGeneratedSingleFileReport::class.java, JSON_REPORT_NAME, task)
         add(TaskGeneratedSingleFileReport::class.java, HTML_REPORT_NAME, task)
+        add(TaskGeneratedSingleFileReport::class.java, XML_REPORT_NAME, task)
     }
 
     override val plainText: SingleFileReport
@@ -85,6 +91,9 @@ class ReporterContainerImpl(
 
     override val html: SingleFileReport
         get() = getByName(HTML_REPORT_NAME) as SingleFileReport
+
+    override val xml: SingleFileReport
+        get() = getByName(XML_REPORT_NAME) as SingleFileReport
 }
 
 abstract class NpmVersionTask
@@ -144,6 +153,7 @@ abstract class NpmVersionTask
 
                     JSON_REPORT_NAME -> JsonReporter(outdated = outdated, latest = latest).writeTo(location)
                     HTML_REPORT_NAME -> HtmlReporter(outdated = outdated, latest = latest).writeTo(location)
+                    XML_REPORT_NAME -> XmlReporter(outdated = outdated, latest = latest).writeTo(location)
                     else -> throw IllegalStateException("${report.name} report is not configured")
                 }
             }

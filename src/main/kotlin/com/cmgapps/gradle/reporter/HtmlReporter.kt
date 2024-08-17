@@ -258,8 +258,4 @@ internal class Tr : TrTag("tr")
 
 internal class Td : TagWithText("td")
 
-internal fun html(init: HTML.() -> Unit): HTML {
-    val html = HTML()
-    html.init()
-    return html
-}
+internal fun html(init: HTML.() -> Unit): HTML = HTML().apply(init)

@@ -54,4 +54,7 @@ npmVersions {
     html {
         enabled.set(true)
     }
+    xml {
+        enabled.set(true)
+    }
 }

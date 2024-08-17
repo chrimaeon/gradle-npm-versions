@@ -52,6 +52,17 @@ abstract class NpmVersionsExtension
             )
 
         fun html(action: Action<in Reporter>) = action.execute(html)
+
+        val xml: Reporter =
+            Reporter(
+                enabled = objects.property<Boolean>().convention(false),
+                outputFile =
+                    objects.fileProperty().convention(
+                        project.layout.buildDirectory.file("npmVersions/report.xml"),
+                    ),
+            )
+
+        fun xml(action: Action<in Reporter>) = action.execute(xml)
     }
 
 class Reporter(

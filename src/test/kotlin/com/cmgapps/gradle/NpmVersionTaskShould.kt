@@ -307,6 +307,63 @@ class NpmVersionTaskShould {
             `is`(expected),
         )
     }
+
+    @Test
+    fun `create xml report`() {
+        val outputDir = testProjectDir.resolve("output")
+        val task =
+            project.tasks.create(
+                "npmVersions",
+                NpmVersionTask::class.java,
+                TestWorkExecutor(project),
+                project.objects,
+            )
+
+        val configuration = project.configurations.create("implementation")
+
+        project.dependencies.add(
+            "implementation",
+            NpmDependency(
+                objectFactory = project.objects,
+                name = TEST_DEP_NAME,
+                version = TEST_DEP_VERSION,
+            ),
+        )
+
+        task.outputDirectory.set(outputDir.toFile().apply { mkdirs() })
+
+        val reportOutputFile = outputDir.resolve("report.xml")
+
+        task.reports.xml.required
+            .set(true)
+        task.reports.xml.outputLocation
+            .set(reportOutputFile.toFile())
+
+        task.configurationToCheck(
+            project.provider {
+                configuration
+            },
+        )
+
+        task.action()
+
+        @Suppress("ktlint:standard:max-line-length")
+        val expected =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<packages xmlns=\"https://www.cmgapps.com\" xsi:schemaLocation=\"https://www.cmgapps.com https://www.cmgapps.com/xsd/packages.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "  <latest>\n" +
+                "    <package currentVersion=\"1.0.0\">\n" +
+                "      npm-dependency\n" +
+                "    </package>\n" +
+                "  </latest>\n" +
+                "  <outdated/>\n" +
+                "</packages>\n"
+
+        assertThat(
+            reportOutputFile.toFile().readText(),
+            `is`(expected),
+        )
+    }
 }
 
 private class TestWorkExecutor(
@@ -338,19 +395,19 @@ private class TestWorkExecutor(
     override fun noIsolation(action: Action<in WorkerSpec>?): WorkQueue = workQueue
 
     override fun classLoaderIsolation(): WorkQueue {
-        TODO("Not yet implemented")
+        error("Not yet implemented")
     }
 
     override fun classLoaderIsolation(action: Action<in ClassLoaderWorkerSpec>?): WorkQueue {
-        TODO("Not yet implemented")
+        error("Not yet implemented")
     }
 
     override fun processIsolation(): WorkQueue {
-        TODO("Not yet implemented")
+        error("Not yet implemented")
     }
 
     override fun processIsolation(action: Action<in ProcessWorkerSpec>?): WorkQueue {
-        TODO("Not yet implemented")
+        error("Not yet implemented")
     }
 
     override fun await() {}
