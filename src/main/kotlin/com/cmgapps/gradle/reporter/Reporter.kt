@@ -7,19 +7,20 @@
 package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.model.Package
+import org.gradle.api.Task
+import org.gradle.api.reporting.Report
+import org.gradle.api.reporting.internal.TaskGeneratedSingleFileReport
 import java.io.OutputStream
-import java.io.PrintStream
 
-internal interface Reporter {
-    fun write(
-        outputStream: PrintStream,
-        text: String,
-    )
+interface PackageReport : Report {
+    var outdated: List<Package>
+    var latest: List<Package>
 }
 
-internal abstract class PackageReporter(
-    protected val outdated: List<Package>,
-    protected val latest: List<Package>,
-) : Reporter {
+abstract class PackageSingleFileReport(
+    name: String,
+    task: Task,
+) : TaskGeneratedSingleFileReport(name, task),
+    PackageReport {
     abstract fun writePackages(outputStream: OutputStream)
 }

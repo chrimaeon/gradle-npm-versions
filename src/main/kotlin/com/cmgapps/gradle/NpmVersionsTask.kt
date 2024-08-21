@@ -8,11 +8,11 @@ package com.cmgapps.gradle
 
 import com.cmgapps.gradle.model.NpmResponse
 import com.cmgapps.gradle.model.Package
-import com.cmgapps.gradle.reporter.HtmlReporter
-import com.cmgapps.gradle.reporter.JsonReporter
-import com.cmgapps.gradle.reporter.PackageReporter
-import com.cmgapps.gradle.reporter.TextReporter
-import com.cmgapps.gradle.reporter.XmlReporter
+import com.cmgapps.gradle.reporter.HtmlReport
+import com.cmgapps.gradle.reporter.JsonReport
+import com.cmgapps.gradle.reporter.PackageSingleFileReport
+import com.cmgapps.gradle.reporter.TextReport
+import com.cmgapps.gradle.reporter.XmlReport
 import com.cmgapps.gradle.service.NetworkService
 import groovy.lang.Closure
 import io.ktor.client.call.body
@@ -33,11 +33,8 @@ import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.reporting.Report
 import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.Reporting
-import org.gradle.api.reporting.SingleFileReport
-import org.gradle.api.reporting.internal.TaskGeneratedSingleFileReport
 import org.gradle.api.reporting.internal.TaskReportContainer
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
@@ -48,22 +45,21 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
-import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-interface ReporterContainer : ReportContainer<Report> {
+interface PackageReportContainer : ReportContainer<PackageSingleFileReport> {
     @get:Internal
-    val plainText: SingleFileReport
+    val plainText: TextReport
 
     @get:Internal
-    val json: SingleFileReport
+    val json: JsonReport
 
     @get:Internal
-    val html: SingleFileReport
+    val html: HtmlReport
 
     @get:Internal
-    val xml: SingleFileReport
+    val xml: XmlReport
 }
 
 internal const val PLAIN_TEXT_REPORT_NAME = "plainText"
@@ -71,29 +67,33 @@ internal const val JSON_REPORT_NAME = "json"
 internal const val HTML_REPORT_NAME = "html"
 internal const val XML_REPORT_NAME = "xml"
 
-class ReporterContainerImpl(
+internal class PackageReportContainerImpl(
     task: Task,
     collectionCallbackActionDecorator: CollectionCallbackActionDecorator,
-) : TaskReportContainer<Report>(Report::class.java, task, collectionCallbackActionDecorator),
-    ReporterContainer {
+) : TaskReportContainer<PackageSingleFileReport>(
+        PackageSingleFileReport::class.java,
+        task,
+        collectionCallbackActionDecorator,
+    ),
+    PackageReportContainer {
     init {
-        add(TaskGeneratedSingleFileReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
-        add(TaskGeneratedSingleFileReport::class.java, JSON_REPORT_NAME, task)
-        add(TaskGeneratedSingleFileReport::class.java, HTML_REPORT_NAME, task)
-        add(TaskGeneratedSingleFileReport::class.java, XML_REPORT_NAME, task)
+        add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
+        add(JsonReport::class.java, JSON_REPORT_NAME, task)
+        add(HtmlReport::class.java, HTML_REPORT_NAME, task)
+        add(XmlReport::class.java, XML_REPORT_NAME, task)
     }
 
-    override val plainText: SingleFileReport
-        get() = getByName(PLAIN_TEXT_REPORT_NAME) as SingleFileReport
+    override val plainText: TextReport
+        get() = getByName(PLAIN_TEXT_REPORT_NAME) as TextReport
 
-    override val json: SingleFileReport
-        get() = getByName(JSON_REPORT_NAME) as SingleFileReport
+    override val json: JsonReport
+        get() = getByName(JSON_REPORT_NAME) as JsonReport
 
-    override val html: SingleFileReport
-        get() = getByName(HTML_REPORT_NAME) as SingleFileReport
+    override val html: HtmlReport
+        get() = getByName(HTML_REPORT_NAME) as HtmlReport
 
-    override val xml: SingleFileReport
-        get() = getByName(XML_REPORT_NAME) as SingleFileReport
+    override val xml: XmlReport
+        get() = getByName(XML_REPORT_NAME) as XmlReport
 }
 
 abstract class NpmVersionTask
@@ -102,7 +102,7 @@ abstract class NpmVersionTask
         private val workerExecutor: WorkerExecutor,
         objects: ObjectFactory,
     ) : DefaultTask(),
-        Reporting<ReporterContainer> {
+        Reporting<PackageReportContainer> {
         private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
 
         @get:Internal
@@ -141,29 +141,25 @@ abstract class NpmVersionTask
                     .map { Json.decodeFromStream<Package>(it.inputStream()) }
                     .partition { ComparableVersion(it.currentVersion) < ComparableVersion(it.availableVersion) }
 
-            val textReporter = TextReporter(outdated = outdated, latest = latest)
+            reports.configureEach {
+                this.outdated = outdated
+                this.latest = latest
+            }
 
-            textReporter.writePackages(System.out)
+            reports.plainText.writePackages(System.out)
 
             reports.filter { it.required.get() }.forEach { report ->
-                val location = report.outputLocation.get().asFile
-                when (report.name) {
-                    PLAIN_TEXT_REPORT_NAME ->
-                        textReporter.writeTo(location)
-
-                    JSON_REPORT_NAME -> JsonReporter(outdated = outdated, latest = latest).writeTo(location)
-                    HTML_REPORT_NAME -> HtmlReporter(outdated = outdated, latest = latest).writeTo(location)
-                    XML_REPORT_NAME -> XmlReporter(outdated = outdated, latest = latest).writeTo(location)
-                    else -> throw IllegalStateException("${report.name} report is not configured")
-                }
+                (report as PackageSingleFileReport).write()
             }
         }
 
-        private fun PackageReporter.writeTo(file: File) {
-            logger.info("Writing ${this::class.simpleName} to ${file.absolutePath}")
-            file.parentFile.mkdirs()
-            file.outputStream().use {
-                writePackages(it)
+        private fun PackageSingleFileReport.write() {
+            with(outputLocation.get().asFile) {
+                parentFile.mkdirs()
+                outputStream().use {
+                    writePackages(it)
+                    logger.info("${this.name} report saved to $absolutePath")
+                }
             }
         }
 
@@ -176,17 +172,18 @@ abstract class NpmVersionTask
             }
         }
 
-        private val _reports: ReporterContainer = ReporterContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
+        private val _reports: PackageReportContainer =
+            PackageReportContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
 
         @Internal
-        override fun getReports() = _reports
+        override fun getReports(): PackageReportContainer = _reports
 
-        override fun reports(closure: Closure<*>): ReporterContainer =
+        override fun reports(closure: Closure<*>): PackageReportContainer =
             reports.apply {
                 project.configure(this, closure)
             }
 
-        override fun reports(configureAction: Action<in ReporterContainer>): ReporterContainer =
+        override fun reports(configureAction: Action<in PackageReportContainer>): PackageReportContainer =
             reports.apply {
                 configureAction.execute(this)
             }

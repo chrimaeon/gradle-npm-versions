@@ -133,6 +133,17 @@ tasks {
         testLogging {
             events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
         }
+        afterSuite(
+            KotlinClosure2<TestDescriptor, TestResult, Unit>(
+                function = { descriptor, result ->
+                    if (descriptor.parent == null) {
+                        logger.lifecycle(
+                            "${result.failedTestCount} failed; ${result.skippedTestCount} skipped; ${result.successfulTestCount} passed.",
+                        )
+                    }
+                },
+            ),
+        )
     }
 
     jar {
@@ -143,11 +154,11 @@ tasks {
                     "Implementation-Version" to versionName,
                     "Implementation-Vendor" to "CMG Mobile Apps",
                     "Created-By" to """${System.getProperty("java.version")} (${System.getProperty("java.vendor")})""",
-                    "Build-By" to System.getProperty("user.name"),
-                    "Build-Date" to Date(),
-                    "Build-JDK" to System.getProperty("java.version"),
-                    "Build-Gradle" to gradle.gradleVersion,
-                    "Build-Kotlin" to libs.versions.kotlin,
+                    "Built-By" to System.getProperty("user.name"),
+                    "Built-Date" to Date(),
+                    "Built-JDK" to System.getProperty("java.version"),
+                    "Built-Gradle" to gradle.gradleVersion,
+                    "Built-Kotlin" to libs.versions.kotlin,
                 ),
             )
         }

@@ -6,19 +6,38 @@
 
 package com.cmgapps.gradle.reporter
 
+import com.cmgapps.gradle.XML_REPORT_NAME
+import com.cmgapps.gradle.extension.ReportTask
+import com.cmgapps.gradle.extension.ReportTaskExtension
 import com.cmgapps.gradle.matcher.DoesNotThrowExceptionMatcher.Companion.doesNotThrowException
+import com.cmgapps.gradle.model.Package
+import org.gradle.api.Task
+import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.property
+import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import java.io.ByteArrayInputStream
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 
-class XmlReporterShould : OutputStreamTest() {
+@ExtendWith(ReportTaskExtension::class)
+class XmlReportShould : OutputStreamTest() {
+    @ReportTask
+    lateinit var task: Task
+
     @Test
     fun `report outdated and latest`() {
-        XmlReporter(outdated = outdated, latest = latest).writePackages(outputStream)
+        TestXmlReport(
+            task = task,
+            outdated = outdatedPackages,
+            latest = latestPackages,
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         val expected =
@@ -41,7 +60,11 @@ class XmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `report outdated only`() {
-        XmlReporter(outdated = outdated, latest = emptyList()).writePackages(outputStream)
+        TestXmlReport(
+            task = task,
+            outdated = outdatedPackages,
+            latest = emptyList(),
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         val expected =
@@ -60,7 +83,11 @@ class XmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `report latest only`() {
-        XmlReporter(outdated = emptyList(), latest = latest).writePackages(outputStream)
+        TestXmlReport(
+            task = task,
+            outdated = emptyList(),
+            latest = latestPackages,
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         val expected =
@@ -79,7 +106,11 @@ class XmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `create valid xml`() {
-        XmlReporter(outdated = outdated, latest = latest).writePackages(outputStream)
+        TestXmlReport(
+            task = task,
+            outdated = outdatedPackages,
+            latest = latestPackages,
+        ).writePackages(outputStream)
 
         val schema =
             SchemaFactory
@@ -90,4 +121,26 @@ class XmlReporterShould : OutputStreamTest() {
             schema.newValidator().validate(StreamSource(ByteArrayInputStream(outputStream.toByteArray())))
         }, doesNotThrowException())
     }
+}
+
+private class TestXmlReport(
+    task: Task,
+    override var outdated: List<Package>,
+    override var latest: List<Package>,
+) : XmlReport(XML_REPORT_NAME, task) {
+    override fun getRequired(): Property<Boolean> =
+        ProjectBuilder
+            .builder()
+            .build()
+            .objects
+            .property()
+
+    override fun getOutputLocation(): RegularFileProperty =
+        ProjectBuilder
+            .builder()
+            .build()
+            .objects
+            .fileProperty()
+
+    override fun getProjectLayout(): ProjectLayout = ProjectBuilder.builder().build().layout
 }

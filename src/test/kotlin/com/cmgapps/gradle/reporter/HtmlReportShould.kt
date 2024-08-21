@@ -6,15 +6,33 @@
 
 package com.cmgapps.gradle.reporter
 
+import com.cmgapps.gradle.HTML_REPORT_NAME
+import com.cmgapps.gradle.extension.ReportTask
+import com.cmgapps.gradle.extension.ReportTaskExtension
+import com.cmgapps.gradle.model.Package
+import org.gradle.api.Task
+import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.property
+import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
-class HtmlReporterShould : OutputStreamTest() {
+@ExtendWith(ReportTaskExtension::class)
+class HtmlReportShould : OutputStreamTest() {
     private lateinit var normalizeCss: String
     private lateinit var styleCss: String
+
+    @ReportTask
+    lateinit var task: Task
+
+    lateinit var objectFactory: ObjectFactory
 
     @BeforeEach
     fun setup() {
@@ -24,7 +42,11 @@ class HtmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `report outdated and latest`() {
-        HtmlReporter(outdated = outdated, latest = latest).writePackages(outputStream)
+        TestHtmlReport(
+            task = task,
+            outdated = outdatedPackages,
+            latest = latestPackages,
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         @Language("html")
@@ -91,7 +113,11 @@ class HtmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `report outdated`() {
-        HtmlReporter(outdated = outdated, latest = emptyList()).writePackages(outputStream)
+        TestHtmlReport(
+            task = task,
+            outdated = outdatedPackages,
+            latest = emptyList(),
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         @Language("html")
@@ -145,7 +171,11 @@ class HtmlReporterShould : OutputStreamTest() {
 
     @Test
     fun `report latest`() {
-        HtmlReporter(outdated = emptyList(), latest = latest).writePackages(outputStream)
+        TestHtmlReport(
+            task = task,
+            outdated = emptyList(),
+            latest = latestPackages,
+        ).writePackages(outputStream)
 
         @Suppress("ktlint:standard:max-line-length")
         @Language("html")
@@ -196,4 +226,26 @@ class HtmlReporterShould : OutputStreamTest() {
             `is`(expected),
         )
     }
+}
+
+private class TestHtmlReport(
+    task: Task,
+    override var outdated: List<Package>,
+    override var latest: List<Package>,
+) : HtmlReport(HTML_REPORT_NAME, task = task) {
+    override fun getRequired(): Property<Boolean> =
+        ProjectBuilder
+            .builder()
+            .build()
+            .objects
+            .property()
+
+    override fun getOutputLocation(): RegularFileProperty =
+        ProjectBuilder
+            .builder()
+            .build()
+            .objects
+            .fileProperty()
+
+    override fun getProjectLayout(): ProjectLayout = ProjectBuilder.builder().build().layout
 }

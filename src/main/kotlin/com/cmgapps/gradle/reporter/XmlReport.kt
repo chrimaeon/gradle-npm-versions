@@ -8,21 +8,14 @@ package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.dsl.Tag
 import com.cmgapps.gradle.dsl.TagWithText
+import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
-import com.cmgapps.gradle.model.Package as PackageModel
 
-internal class XmlReporter(
-    outdated: List<PackageModel>,
-    latest: List<PackageModel>,
-) : PackageReporter(outdated = outdated, latest = latest) {
-    override fun write(
-        outputStream: PrintStream,
-        text: String,
-    ) {
-        outputStream.print(text)
-    }
-
+abstract class XmlReport(
+    name: String,
+    task: Task,
+) : PackageSingleFileReport(name, task) {
     override fun writePackages(outputStream: OutputStream) {
         val xml =
             packages {
@@ -41,8 +34,8 @@ internal class XmlReporter(
                     }
                 }
             }
-        PrintStream(outputStream).use {
-            write(it, xml.toString())
+        PrintStream(outputStream).use { printStream ->
+            printStream.print(xml.toString())
         }
     }
 }

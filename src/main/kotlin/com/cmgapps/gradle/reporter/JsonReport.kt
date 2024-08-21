@@ -6,25 +6,21 @@
 
 package com.cmgapps.gradle.reporter
 
-import com.cmgapps.gradle.model.Package
+import com.cmgapps.gradle.JSON_REPORT_NAME
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
 
-internal class JsonReporter(
-    outdated: List<Package>,
-    latest: List<Package>,
-) : PackageReporter(outdated = outdated, latest = latest) {
-    override fun write(
-        outputStream: PrintStream,
-        text: String,
-    ) {
-        outputStream.println(text)
-    }
+abstract class JsonReport(
+    name: String,
+    task: Task,
+) : PackageSingleFileReport(name, task) {
+    override fun getName(): String = JSON_REPORT_NAME
 
     private val json =
         Json {
@@ -54,10 +50,9 @@ internal class JsonReporter(
                 put("outdated", Json.encodeToJsonElement(outdated))
             }
 
-        write(
-            PrintStream(outputStream),
-            json.encodeToString(content),
-        )
+        PrintStream(outputStream).use { printStream ->
+            printStream.println(json.encodeToString(content))
+        }
     }
 }
 

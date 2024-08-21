@@ -88,13 +88,13 @@ your `npm` dependencies.
 
 ### Configuration
 
-With the `npmVersions` extension you can enable the file reporters and output file location.
-There are 4 reporter:
+With the [npmVersions](./src/main/kotlin/com/cmgapps/gradle/NpmVersionsExtension.kt) extension you can enable the file reporters and output file location.
+There are 4 reporters:
 
 - **Plain Text**: Same format as the console output
 - **JSON**: A JSON of the package versions
 - **HTML**: An HTML website
-- **XML**: An XML of the package.
+- **XML**: An XML of the packages.
 
 ```gradle
 npmVersions {

@@ -8,21 +8,14 @@ package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.dsl.Tag
 import com.cmgapps.gradle.dsl.TagWithText
-import com.cmgapps.gradle.model.Package
+import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
 
-internal class HtmlReporter(
-    outdated: List<Package>,
-    latest: List<Package>,
-) : PackageReporter(outdated = outdated, latest = latest) {
-    override fun write(
-        outputStream: PrintStream,
-        text: String,
-    ) {
-        outputStream.print(text)
-    }
-
+abstract class HtmlReport(
+    name: String,
+    task: Task,
+) : PackageSingleFileReport(name, task) {
     override fun writePackages(outputStream: OutputStream) {
         val html =
             html {
@@ -93,7 +86,7 @@ internal class HtmlReporter(
                 }
             }
         PrintStream(outputStream).use { printStream ->
-            write(printStream, html.toString())
+            printStream.print(html)
         }
     }
 }

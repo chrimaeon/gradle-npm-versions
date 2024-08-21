@@ -8,7 +8,7 @@ package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.model.Package
 
-val outdated =
+val outdatedPackages =
     listOf(
         Package(
             name = "outdated lib",
@@ -17,7 +17,7 @@ val outdated =
         ),
     )
 
-val latest =
+val latestPackages =
     listOf(
         Package(
             name = "latest list",
