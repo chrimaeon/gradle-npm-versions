@@ -24,6 +24,7 @@ plugins {
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
     alias(libs.plugins.pluginPublish)
+    id("cmgapps.gradle.test")
 }
 
 val pomProperties =
@@ -130,20 +131,6 @@ tasks {
 
     test {
         useJUnitPlatform()
-        testLogging {
-            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
-        }
-        afterSuite(
-            KotlinClosure2<TestDescriptor, TestResult, Unit>(
-                function = { descriptor, result ->
-                    if (descriptor.parent == null) {
-                        logger.lifecycle(
-                            "${result.failedTestCount} failed; ${result.skippedTestCount} skipped; ${result.successfulTestCount} passed.",
-                        )
-                    }
-                },
-            ),
-        )
     }
 
     jar {
@@ -209,7 +196,7 @@ dependencies {
     compileOnly(libs.kotlin.gradle)
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)
-    implementation(libs.maven.artifact)
+    implementation(libs.semver)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter) {

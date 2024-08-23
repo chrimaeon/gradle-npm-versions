@@ -22,7 +22,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.apache.maven.artifact.versioning.ComparableVersion
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
@@ -45,6 +44,7 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
+import org.semver4j.Semver
 import java.io.FileOutputStream
 import javax.inject.Inject
 
@@ -138,8 +138,8 @@ abstract class NpmVersionTask
                 outputDirectoryFile
                     .walkTopDown()
                     .filter { it.isFile }
-                    .map { Json.decodeFromStream<Package>(it.inputStream()) }
-                    .partition { ComparableVersion(it.currentVersion) < ComparableVersion(it.availableVersion) }
+                    .map { it.inputStream().use { stream -> Json.decodeFromStream<Package>(stream) } }
+                    .partition { it.currentVersion < it.availableVersion }
 
             reports.configureEach {
                 this.outdated = outdated
@@ -172,11 +172,16 @@ abstract class NpmVersionTask
             }
         }
 
-        private val _reports: PackageReportContainer =
-            PackageReportContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
+        private var _reports: PackageReportContainer? = null
 
         @Internal
-        override fun getReports(): PackageReportContainer = _reports
+        override fun getReports(): PackageReportContainer =
+            synchronized(this) {
+                if (_reports == null) {
+                    _reports = PackageReportContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
+                }
+                _reports!!
+            }
 
         override fun reports(closure: Closure<*>): PackageReportContainer =
             reports.apply {
@@ -205,8 +210,8 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
                 Json.encodeToString(
                     Package(
                         name = response.name,
-                        currentVersion = parameters.dependencyVersion.get(),
-                        availableVersion = response.version,
+                        currentVersion = Semver(parameters.dependencyVersion.get()),
+                        availableVersion = Semver(response.version),
                     ),
                 ),
             )

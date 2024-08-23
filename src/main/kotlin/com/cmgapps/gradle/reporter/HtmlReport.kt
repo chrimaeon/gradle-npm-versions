@@ -51,7 +51,7 @@ abstract class HtmlReport(
                                         +it.name
                                     }
                                     td {
-                                        +it.currentVersion
+                                        +it.currentVersion.toString()
                                     }
                                 }
                             }

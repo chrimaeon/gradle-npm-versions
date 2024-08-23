@@ -32,15 +32,15 @@ abstract class JsonReport(
             outdated.map {
                 Outdated(
                     name = it.name,
-                    currentVersion = it.currentVersion,
-                    latestVersion = it.availableVersion,
+                    currentVersion = it.currentVersion.toString(),
+                    latestVersion = it.availableVersion.toString(),
                 )
             }
         val latest =
             latest.map {
                 Latest(
                     name = it.name,
-                    version = it.currentVersion,
+                    version = it.currentVersion.toString(),
                 )
             }
 

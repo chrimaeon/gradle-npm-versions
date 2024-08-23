@@ -21,14 +21,17 @@ abstract class XmlReport(
             packages {
                 latest {
                     latest.forEach {
-                        `package`(currentVersion = it.currentVersion) {
+                        `package`(currentVersion = it.currentVersion.toString()) {
                             +it.name
                         }
                     }
                 }
                 outdated {
                     outdated.forEach {
-                        `package`(currentVersion = it.currentVersion, latestVersion = it.availableVersion) {
+                        `package`(
+                            currentVersion = it.currentVersion.toString(),
+                            latestVersion = it.availableVersion.toString(),
+                        ) {
                             +it.name
                         }
                     }
