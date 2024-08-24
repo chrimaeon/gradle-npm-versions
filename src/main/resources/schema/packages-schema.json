@@ -1,0 +1,65 @@
+{
+    "$id": "https://www.cmgapps.com/schema/packages-schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Packages",
+    "type": "object",
+    "required": [
+        "latest",
+        "outdated"
+    ],
+    "properties": {
+        "latest": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/LatestPackage"
+            },
+            "minItems": 0
+        },
+        "outdated": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/OutdatedPackage"
+            },
+            "minItems": 0
+        }
+    },
+    "additionalProperties": false,
+    "$defs": {
+        "LatestPackage": {
+            "type": "object",
+            "required": [
+                "name",
+                "version"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "OutdatedPackage": {
+            "type": "object",
+            "required": [
+                "name",
+                "currentVersion",
+                "latestVersion"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "currentVersion": {
+                    "type": "string"
+                },
+                "latestVersion": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

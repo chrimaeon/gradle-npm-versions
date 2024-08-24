@@ -7,21 +7,22 @@
 package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.model.Package
+import org.semver4j.Semver
 
-val outdated =
+val outdatedPackages =
     listOf(
         Package(
             name = "outdated lib",
-            currentVersion = "1.0.0",
-            availableVersion = "2.0.0",
+            currentVersion = Semver.of(1, 0, 0),
+            availableVersion = Semver.of(2, 0, 0),
         ),
     )
 
-val latest =
+val latestPackages =
     listOf(
         Package(
             name = "latest list",
-            currentVersion = "1.0.0",
-            availableVersion = "1.0.0",
+            currentVersion = Semver.of(1, 0, 0),
+            availableVersion = Semver.of(1, 0, 0),
         ),
     )

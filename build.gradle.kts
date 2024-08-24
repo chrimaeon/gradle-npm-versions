@@ -24,6 +24,7 @@ plugins {
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
     alias(libs.plugins.pluginPublish)
+    id("cmgapps.gradle.test")
 }
 
 val pomProperties =
@@ -130,9 +131,6 @@ tasks {
 
     test {
         useJUnitPlatform()
-        testLogging {
-            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
-        }
     }
 
     jar {
@@ -143,11 +141,11 @@ tasks {
                     "Implementation-Version" to versionName,
                     "Implementation-Vendor" to "CMG Mobile Apps",
                     "Created-By" to """${System.getProperty("java.version")} (${System.getProperty("java.vendor")})""",
-                    "Build-By" to System.getProperty("user.name"),
-                    "Build-Date" to Date(),
-                    "Build-JDK" to System.getProperty("java.version"),
-                    "Build-Gradle" to gradle.gradleVersion,
-                    "Build-Kotlin" to libs.versions.kotlin,
+                    "Built-By" to System.getProperty("user.name"),
+                    "Built-Date" to Date(),
+                    "Built-JDK" to System.getProperty("java.version"),
+                    "Built-Gradle" to gradle.gradleVersion,
+                    "Built-Kotlin" to libs.versions.kotlin,
                 ),
             )
         }
@@ -198,7 +196,7 @@ dependencies {
     compileOnly(libs.kotlin.gradle)
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)
-    implementation(libs.maven.artifact)
+    implementation(libs.semver)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter) {
@@ -208,6 +206,7 @@ dependencies {
     testImplementation(libs.kotlin.gradle)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.networknt.jsonschemavalidator)
 
     "functionalTestImplementation"(platform(libs.junit.bom))
     "functionalTestImplementation"(libs.junit.jupiter) {

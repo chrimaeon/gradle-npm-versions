@@ -59,7 +59,7 @@ class CheckNpmPackageActionShould {
                                                 Json.encodeToString(
                                                     NpmResponse(
                                                         "my_library",
-                                                        "1.0",
+                                                        "1.0.0",
                                                     ),
                                                 ),
                                             ),
@@ -86,7 +86,7 @@ class CheckNpmPackageActionShould {
                 override fun getParameters() =
                     object : Params {
                         override val dependencyName = project.objects.property<String>().value("my_library")
-                        override val dependencyVersion = project.objects.property<String>().value("1.0")
+                        override val dependencyVersion = project.objects.property<String>().value("1.0.0-alpha.1")
                         override val outputDirectory =
                             project.objects.directoryProperty().apply {
                                 set(outputDir.toFile())
@@ -105,7 +105,7 @@ class CheckNpmPackageActionShould {
 
         val content = File(outputDir.toFile(), "my_library.json").readText(Charsets.UTF_8)
 
-        assertThat(content, `is`("""{"name":"my_library","currentVersion":"1.0","availableVersion":"1.0"}"""))
+        assertThat(content, `is`("""{"name":"my_library","currentVersion":"1.0.0-alpha.1","availableVersion":"1.0.0"}"""))
     }
 
     @OptIn(ExperimentalSerializationApi::class)
