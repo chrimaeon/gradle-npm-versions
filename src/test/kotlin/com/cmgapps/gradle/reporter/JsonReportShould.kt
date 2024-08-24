@@ -10,6 +10,9 @@ import com.cmgapps.gradle.JSON_REPORT_NAME
 import com.cmgapps.gradle.extension.ReportTask
 import com.cmgapps.gradle.extension.ReportTaskExtension
 import com.cmgapps.gradle.model.Package
+import com.networknt.schema.InputFormat
+import com.networknt.schema.JsonSchemaFactory
+import com.networknt.schema.SpecVersion.VersionFlag
 import org.gradle.api.Task
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
@@ -17,6 +20,7 @@ import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.`is`
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
@@ -110,6 +114,35 @@ class JsonReportShould : OutputStreamTest() {
             outputStream.asString(),
             `is`(expected),
         )
+    }
+
+    @Test
+    fun `create valid json`() {
+        val schema =
+            JsonSchemaFactory
+                .getInstance(VersionFlag.V202012)
+                .getSchema(
+                    javaClass.getResourceAsStream("/schema/packages-schema.json"),
+                )
+
+        TestJsonReporter(
+            task = task,
+            outdated = outdatedPackages,
+            latest = latestPackages,
+        ).writePackages(outputStream)
+
+        val result =
+            schema.validate(
+                outputStream.asString(),
+                InputFormat.JSON,
+            ) { executionContext ->
+                with(executionContext.executionConfig) {
+                    formatAssertionsEnabled = true
+                    isDebugEnabled = true
+                }
+            }
+
+        assertThat(result, empty())
     }
 }
 
