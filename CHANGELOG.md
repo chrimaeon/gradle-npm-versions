@@ -5,16 +5,28 @@
 ### Added
 
 ### Changed
-- Move from Reporter to [Report API](https://docs.gradle.org/current/javadoc/org/gradle/api/reporting/Report.html)
 
 ### Deprecated
 
 ### Removed
-- All Reporter
 
 ### Fixed
 
 ### Security
+
+## 0.3.0
+
+### Added
+
+- Add Json Schema for JSON Report Validation
+
+### Changed
+
+- Move from Reporter to [Report API](https://docs.gradle.org/current/javadoc/org/gradle/api/reporting/Report.html)
+
+### Removed
+
+- All Reporter
 
 ## 0.2.0
 
