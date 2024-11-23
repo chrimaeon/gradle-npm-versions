@@ -8,14 +8,12 @@ package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.dsl.Tag
 import com.cmgapps.gradle.dsl.TagWithText
-import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
 
 abstract class XmlReport(
     name: String,
-    task: Task,
-) : PackageSingleFileReport(name, task) {
+) : PackageSingleFileReport(name) {
     override fun writePackages(outputStream: OutputStream) {
         val xml =
             packages {

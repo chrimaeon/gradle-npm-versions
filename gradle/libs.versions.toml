@@ -1,7 +1,7 @@
 [versions]
 
-kotlin = "2.0.20"
-gradle = "8.10"
+kotlin = "2.0.21"
+gradle = "8.11"
 ktor = "2.3.12"
 
 [plugins]
