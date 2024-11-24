@@ -7,20 +7,42 @@
 package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.model.Package
-import org.gradle.api.Task
+import groovy.lang.Closure
 import org.gradle.api.reporting.Report
-import org.gradle.api.reporting.internal.TaskGeneratedSingleFileReport
+import org.gradle.api.reporting.SingleFileReport
+import org.gradle.util.internal.ConfigureUtil
+import java.io.File
 import java.io.OutputStream
 
-interface PackageReport : Report {
+interface PackageReport {
     var outdated: List<Package>
     var latest: List<Package>
 }
 
 abstract class PackageSingleFileReport(
-    name: String,
-    task: Task,
-) : TaskGeneratedSingleFileReport(name, task),
-    PackageReport {
+    private val name: String,
+) : PackageReport,
+    SingleFileReport {
+    init {
+        required.convention(false)
+    }
+
     abstract fun writePackages(outputStream: OutputStream)
+
+    override fun getName(): String = name
+
+    override fun getDisplayName(): String = "NPM Versions Report for $name"
+
+    @Deprecated("Deprecated in Java", replaceWith = ReplaceWith("outputLocation.set"))
+    override fun setDestination(file: File) {
+        outputLocation.fileValue(file)
+    }
+
+    override fun getOutputType(): Report.OutputType = Report.OutputType.FILE
+
+    override fun configure(configure: Closure<*>): Report =
+        ConfigureUtil.configureSelf(
+            configure,
+            this,
+        )
 }

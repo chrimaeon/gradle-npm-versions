@@ -12,14 +12,12 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
-import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
 
 abstract class JsonReport(
     name: String,
-    task: Task,
-) : PackageSingleFileReport(name, task) {
+) : PackageSingleFileReport(name) {
     override fun getName(): String = JSON_REPORT_NAME
 
     private val json =
