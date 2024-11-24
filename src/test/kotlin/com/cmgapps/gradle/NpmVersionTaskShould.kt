@@ -444,7 +444,7 @@ private class TestNetworkService(
                 project.objects.property<HttpClientEngine>().value(
                     MockEngine { request ->
                         when {
-                            request.url.pathSegments[0] == TEST_DEP_NAME ->
+                            request.url.segments[0] == TEST_DEP_NAME ->
                                 respond(
                                     content =
                                         ByteReadChannel(
