@@ -24,21 +24,24 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
+import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.Reporting
-import org.gradle.api.reporting.internal.TaskReportContainer
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.instantiation.InstantiatorFactory
+import org.gradle.internal.reflect.Instantiator
+import org.gradle.internal.service.ServiceRegistry
 import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.util.internal.ConfigureUtil
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkQueue
@@ -68,19 +71,38 @@ internal const val HTML_REPORT_NAME = "html"
 internal const val XML_REPORT_NAME = "xml"
 
 internal class PackageReportContainerImpl(
-    task: Task,
-    collectionCallbackActionDecorator: CollectionCallbackActionDecorator,
-) : TaskReportContainer<PackageSingleFileReport>(
-        PackageSingleFileReport::class.java,
-        task,
-        collectionCallbackActionDecorator,
-    ),
+    objectSet: NamedDomainObjectSet<PackageSingleFileReport>,
+    private val instantiator: Instantiator,
+) : NamedDomainObjectSet<PackageSingleFileReport> by objectSet,
     PackageReportContainer {
     init {
-        add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME, task)
-        add(JsonReport::class.java, JSON_REPORT_NAME, task)
-        add(HtmlReport::class.java, HTML_REPORT_NAME, task)
-        add(XmlReport::class.java, XML_REPORT_NAME, task)
+        add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME)
+        add(JsonReport::class.java, JSON_REPORT_NAME)
+        add(HtmlReport::class.java, HTML_REPORT_NAME)
+        add(XmlReport::class.java, XML_REPORT_NAME)
+    }
+
+    override fun getEnabled(): NamedDomainObjectSet<PackageSingleFileReport> = enabled
+
+    @Override
+    override fun getEnabledReports(): MutableMap<String, PackageSingleFileReport> = enabled.asMap
+
+    private val enabled: NamedDomainObjectSet<PackageSingleFileReport> =
+        matching { element -> element.required.get() }
+
+    override fun configure(cl: Closure<*>?): ReportContainer<PackageSingleFileReport> {
+        ConfigureUtil.configureSelf(
+            cl,
+            this,
+        )
+        return this
+    }
+
+    private fun add(
+        clazz: Class<out PackageSingleFileReport>,
+        name: String,
+    ) {
+        add(instantiator.newInstance(clazz, name))
     }
 
     override val plainText: TextReport
@@ -101,6 +123,7 @@ abstract class NpmVersionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
         objects: ObjectFactory,
+        private val serviceRegistry: ServiceRegistry,
     ) : DefaultTask(),
         Reporting<PackageReportContainer> {
         private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
@@ -178,7 +201,11 @@ abstract class NpmVersionTask
         override fun getReports(): PackageReportContainer =
             synchronized(this) {
                 if (_reports == null) {
-                    _reports = PackageReportContainerImpl(this, CollectionCallbackActionDecorator.NOOP)
+                    _reports =
+                        PackageReportContainerImpl(
+                            project.objects.namedDomainObjectSet(PackageSingleFileReport::class.java),
+                            project.serviceOf<InstantiatorFactory>().decorateLenient(serviceRegistry),
+                        )
                 }
                 _reports!!
             }

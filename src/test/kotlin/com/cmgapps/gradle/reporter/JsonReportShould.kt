@@ -7,14 +7,10 @@
 package com.cmgapps.gradle.reporter
 
 import com.cmgapps.gradle.JSON_REPORT_NAME
-import com.cmgapps.gradle.extension.ReportTask
-import com.cmgapps.gradle.extension.ReportTaskExtension
 import com.cmgapps.gradle.model.Package
 import com.networknt.schema.InputFormat
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion.VersionFlag
-import org.gradle.api.Task
-import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
@@ -24,17 +20,11 @@ import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.`is`
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(ReportTaskExtension::class)
 class JsonReportShould : OutputStreamTest() {
-    @ReportTask
-    lateinit var task: Task
-
     @Test
     fun `report outdated and latest`() {
         TestJsonReporter(
-            task = task,
             outdated = outdatedPackages,
             latest = latestPackages,
         ).writePackages(outputStream)
@@ -66,7 +56,6 @@ class JsonReportShould : OutputStreamTest() {
     @Test
     fun `report outdated only`() {
         TestJsonReporter(
-            task = task,
             outdated = outdatedPackages,
             latest = emptyList(),
         ).writePackages(outputStream)
@@ -93,7 +82,6 @@ class JsonReportShould : OutputStreamTest() {
     @Test
     fun `report latest only`() {
         TestJsonReporter(
-            task = task,
             outdated = emptyList(),
             latest = latestPackages,
         ).writePackages(outputStream)
@@ -126,7 +114,6 @@ class JsonReportShould : OutputStreamTest() {
                 )
 
         TestJsonReporter(
-            task = task,
             outdated = outdatedPackages,
             latest = latestPackages,
         ).writePackages(outputStream)
@@ -147,10 +134,9 @@ class JsonReportShould : OutputStreamTest() {
 }
 
 private class TestJsonReporter(
-    task: Task,
     override var outdated: List<Package>,
     override var latest: List<Package>,
-) : JsonReport(JSON_REPORT_NAME, task) {
+) : JsonReport(JSON_REPORT_NAME) {
     override fun getRequired(): Property<Boolean> =
         ProjectBuilder
             .builder()
@@ -164,6 +150,4 @@ private class TestJsonReporter(
             .build()
             .objects
             .fileProperty()
-
-    override fun getProjectLayout(): ProjectLayout = ProjectBuilder.builder().build().layout
 }

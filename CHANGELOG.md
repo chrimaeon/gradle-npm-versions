@@ -14,6 +14,12 @@
 
 ### Security
 
+## 0.4.0
+
+### Changed
+
+- use custom `Reporting` implementation to not rely in `internal` Gradle classes
+
 ## 0.3.0
 
 ### Added

@@ -6,14 +6,12 @@
 
 package com.cmgapps.gradle.reporter
 
-import org.gradle.api.Task
 import java.io.OutputStream
 import java.io.PrintStream
 
 abstract class TextReport(
     name: String,
-    task: Task,
-) : PackageSingleFileReport(name, task) {
+) : PackageSingleFileReport(name) {
     override fun writePackages(outputStream: OutputStream) {
         PrintStream(outputStream).use { printStream ->
             printStream.println("┌──────────────┐")
