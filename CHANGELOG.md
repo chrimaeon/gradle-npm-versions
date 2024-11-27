@@ -14,6 +14,12 @@
 
 ### Security
 
+## 0.4.1
+
+### Changed
+
+- Simplify `ReportContainer` creation
+
 ## 0.4.0
 
 ### Changed
