@@ -202,6 +202,7 @@ dependencies {
     testImplementation(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.hamcrest)
     testImplementation(libs.kotlin.gradle)
     testImplementation(libs.ktor.client.mock)
@@ -212,6 +213,8 @@ dependencies {
     "functionalTestImplementation"(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
+    "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+
     "functionalTestImplementation"(libs.kotlin.gradle)
     "functionalTestImplementation"(libs.hamcrest)
     "functionalTestImplementation"(gradleTestKit())
