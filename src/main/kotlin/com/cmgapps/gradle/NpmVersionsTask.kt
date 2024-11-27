@@ -19,9 +19,9 @@ import io.ktor.client.call.body
 import io.ktor.http.encodeURLPathPart
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectSet
@@ -207,6 +207,7 @@ abstract class NpmVersionTask
     }
 
 abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> {
+    @OptIn(ExperimentalSerializationApi::class)
     override fun execute() {
         val outputDirectory = parameters.outputDirectory
         val dependencyName = parameters.dependencyName.get()
@@ -217,15 +218,14 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
 
         FileOutputStream(
             outputDirectory.asFile.get().resolve(dependencyName.encodeURLPathPart() + ".json"),
-        ).bufferedWriter().use {
-            it.write(
-                Json.encodeToString(
-                    Package(
-                        name = response.name,
-                        currentVersion = Semver(parameters.dependencyVersion.get()),
-                        availableVersion = Semver(response.version),
-                    ),
+        ).use {
+            Json.encodeToStream(
+                Package(
+                    name = response.name,
+                    currentVersion = Semver(parameters.dependencyVersion.get()),
+                    availableVersion = Semver(response.version),
                 ),
+                it,
             )
         }
     }
