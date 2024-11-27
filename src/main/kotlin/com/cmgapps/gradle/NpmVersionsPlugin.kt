@@ -44,10 +44,10 @@ class NpmVersionsPlugin : Plugin<Project> {
                         usesService(serviceProvider)
                         reports.forEach {
                             when (it.name) {
-                                PLAIN_TEXT_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.plainText)
-                                JSON_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.json)
-                                HTML_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.html)
-                                XML_REPORT_NAME -> (it as SingleFileReport).configureReports(npmVersionsExtension.xml)
+                                PLAIN_TEXT_REPORT_NAME -> it.configureReports(npmVersionsExtension.plainText)
+                                JSON_REPORT_NAME -> it.configureReports(npmVersionsExtension.json)
+                                HTML_REPORT_NAME -> it.configureReports(npmVersionsExtension.html)
+                                XML_REPORT_NAME -> it.configureReports(npmVersionsExtension.xml)
                                 else -> throw IllegalStateException("report configuration not provided")
                             }
                         }

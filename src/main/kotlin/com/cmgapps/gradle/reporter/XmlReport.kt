@@ -10,36 +10,39 @@ import com.cmgapps.gradle.dsl.Tag
 import com.cmgapps.gradle.dsl.TagWithText
 import java.io.OutputStream
 import java.io.PrintStream
+import javax.inject.Inject
 
-abstract class XmlReport(
-    name: String,
-) : PackageSingleFileReport(name) {
-    override fun writePackages(outputStream: OutputStream) {
-        val xml =
-            packages {
-                latest {
-                    latest.forEach {
-                        `package`(currentVersion = it.currentVersion.toString()) {
-                            +it.name
+abstract class XmlReport
+    @Inject
+    constructor(
+        name: String,
+    ) : PackageSingleFileReport(name) {
+        override fun writePackages(outputStream: OutputStream) {
+            val xml =
+                packages {
+                    latest {
+                        latest.forEach {
+                            `package`(currentVersion = it.currentVersion.toString()) {
+                                +it.name
+                            }
+                        }
+                    }
+                    outdated {
+                        outdated.forEach {
+                            `package`(
+                                currentVersion = it.currentVersion.toString(),
+                                latestVersion = it.availableVersion.toString(),
+                            ) {
+                                +it.name
+                            }
                         }
                     }
                 }
-                outdated {
-                    outdated.forEach {
-                        `package`(
-                            currentVersion = it.currentVersion.toString(),
-                            latestVersion = it.availableVersion.toString(),
-                        ) {
-                            +it.name
-                        }
-                    }
-                }
+            PrintStream(outputStream).use { printStream ->
+                printStream.print(xml.toString())
             }
-        PrintStream(outputStream).use { printStream ->
-            printStream.print(xml.toString())
         }
     }
-}
 
 private class Packages : Tag("packages") {
     fun latest(init: LatestPackage.() -> Unit) = initTag(LatestPackage(), init)

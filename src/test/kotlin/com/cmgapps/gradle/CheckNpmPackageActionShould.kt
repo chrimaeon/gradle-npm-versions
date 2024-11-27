@@ -52,7 +52,7 @@ class CheckNpmPackageActionShould {
                     project.objects.property<HttpClientEngine>().value(
                         MockEngine { request ->
                             when {
-                                request.url.pathSegments[0] == "my_library" ->
+                                request.url.segments[0] == "my_library" ->
                                     respond(
                                         content =
                                             ByteReadChannel(

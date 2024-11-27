@@ -14,45 +14,48 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import java.io.OutputStream
 import java.io.PrintStream
+import javax.inject.Inject
 
-abstract class JsonReport(
-    name: String,
-) : PackageSingleFileReport(name) {
-    override fun getName(): String = JSON_REPORT_NAME
+abstract class JsonReport
+    @Inject
+    constructor(
+        name: String,
+    ) : PackageSingleFileReport(name) {
+        override fun getName(): String = JSON_REPORT_NAME
 
-    private val json =
-        Json {
-            prettyPrint = true
-        }
-
-    override fun writePackages(outputStream: OutputStream) {
-        val outdated =
-            outdated.map {
-                Outdated(
-                    name = it.name,
-                    currentVersion = it.currentVersion.toString(),
-                    latestVersion = it.availableVersion.toString(),
-                )
-            }
-        val latest =
-            latest.map {
-                Latest(
-                    name = it.name,
-                    version = it.currentVersion.toString(),
-                )
+        private val json =
+            Json {
+                prettyPrint = true
             }
 
-        val content =
-            buildJsonObject {
-                put("latest", Json.encodeToJsonElement(latest))
-                put("outdated", Json.encodeToJsonElement(outdated))
-            }
+        override fun writePackages(outputStream: OutputStream) {
+            val outdated =
+                outdated.map {
+                    Outdated(
+                        name = it.name,
+                        currentVersion = it.currentVersion.toString(),
+                        latestVersion = it.availableVersion.toString(),
+                    )
+                }
+            val latest =
+                latest.map {
+                    Latest(
+                        name = it.name,
+                        version = it.currentVersion.toString(),
+                    )
+                }
 
-        PrintStream(outputStream).use { printStream ->
-            printStream.println(json.encodeToString(content))
+            val content =
+                buildJsonObject {
+                    put("latest", Json.encodeToJsonElement(latest))
+                    put("outdated", Json.encodeToJsonElement(outdated))
+                }
+
+            PrintStream(outputStream).use { printStream ->
+                printStream.println(json.encodeToString(content))
+            }
         }
     }
-}
 
 @Serializable
 private data class Outdated(

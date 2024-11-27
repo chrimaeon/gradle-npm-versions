@@ -36,11 +36,8 @@ import org.gradle.api.reporting.Reporting
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.instantiation.InstantiatorFactory
-import org.gradle.internal.reflect.Instantiator
-import org.gradle.internal.service.ServiceRegistry
+import org.gradle.kotlin.dsl.namedDomainObjectSet
 import org.gradle.kotlin.dsl.property
-import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.util.internal.ConfigureUtil
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
@@ -71,9 +68,8 @@ internal const val HTML_REPORT_NAME = "html"
 internal const val XML_REPORT_NAME = "xml"
 
 internal class PackageReportContainerImpl(
-    objectSet: NamedDomainObjectSet<PackageSingleFileReport>,
-    private val instantiator: Instantiator,
-) : NamedDomainObjectSet<PackageSingleFileReport> by objectSet,
+    private val objects: ObjectFactory,
+) : NamedDomainObjectSet<PackageSingleFileReport> by objects.namedDomainObjectSet(PackageSingleFileReport::class),
     PackageReportContainer {
     init {
         add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME)
@@ -102,7 +98,7 @@ internal class PackageReportContainerImpl(
         clazz: Class<out PackageSingleFileReport>,
         name: String,
     ) {
-        add(instantiator.newInstance(clazz, name))
+        add(objects.newInstance(clazz, name))
     }
 
     override val plainText: TextReport
@@ -123,7 +119,6 @@ abstract class NpmVersionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
         objects: ObjectFactory,
-        private val serviceRegistry: ServiceRegistry,
     ) : DefaultTask(),
         Reporting<PackageReportContainer> {
         private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
@@ -195,20 +190,10 @@ abstract class NpmVersionTask
             }
         }
 
-        private var _reports: PackageReportContainer? = null
+        private val reports: PackageReportContainer = PackageReportContainerImpl(project.objects)
 
         @Internal
-        override fun getReports(): PackageReportContainer =
-            synchronized(this) {
-                if (_reports == null) {
-                    _reports =
-                        PackageReportContainerImpl(
-                            project.objects.namedDomainObjectSet(PackageSingleFileReport::class.java),
-                            project.serviceOf<InstantiatorFactory>().decorateLenient(serviceRegistry),
-                        )
-                }
-                _reports!!
-            }
+        override fun getReports(): PackageReportContainer = reports
 
         override fun reports(closure: Closure<*>): PackageReportContainer =
             reports.apply {

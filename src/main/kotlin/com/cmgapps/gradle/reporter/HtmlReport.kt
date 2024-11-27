@@ -10,84 +10,87 @@ import com.cmgapps.gradle.dsl.Tag
 import com.cmgapps.gradle.dsl.TagWithText
 import java.io.OutputStream
 import java.io.PrintStream
+import javax.inject.Inject
 
-abstract class HtmlReport(
-    name: String,
-) : PackageSingleFileReport(name) {
-    override fun writePackages(outputStream: OutputStream) {
-        val html =
-            html {
-                head {
-                    title {
-                        +"NPM Versions"
-                    }
-                    style {
-                        +javaClass
-                            .getResourceAsStream("/normalize.css")!!
-                            .bufferedReader(Charsets.UTF_8)
-                            .use { it.readText() }
-                    }
-                    style {
-                        +javaClass
-                            .getResourceAsStream("/style.css")!!
-                            .bufferedReader(Charsets.UTF_8)
-                            .use { it.readText() }
-                    }
-                }
-                body {
-                    h1 {
-                        +"NPM Versions"
-                    }
-                    if (latest.isNotEmpty()) {
-                        p {
-                            +"The following packages are using the latest version"
+abstract class HtmlReport
+    @Inject
+    constructor(
+        name: String,
+    ) : PackageSingleFileReport(name) {
+        override fun writePackages(outputStream: OutputStream) {
+            val html =
+                html {
+                    head {
+                        title {
+                            +"NPM Versions"
                         }
-                        table {
-                            latest.forEach {
-                                tr {
-                                    td {
-                                        +it.name
-                                    }
-                                    td {
-                                        +it.currentVersion.toString()
+                        style {
+                            +javaClass
+                                .getResourceAsStream("/normalize.css")!!
+                                .bufferedReader(Charsets.UTF_8)
+                                .use { it.readText() }
+                        }
+                        style {
+                            +javaClass
+                                .getResourceAsStream("/style.css")!!
+                                .bufferedReader(Charsets.UTF_8)
+                                .use { it.readText() }
+                        }
+                    }
+                    body {
+                        h1 {
+                            +"NPM Versions"
+                        }
+                        if (latest.isNotEmpty()) {
+                            p {
+                                +"The following packages are using the latest version"
+                            }
+                            table {
+                                latest.forEach {
+                                    tr {
+                                        td {
+                                            +it.name
+                                        }
+                                        td {
+                                            +it.currentVersion.toString()
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    if (outdated.isNotEmpty()) {
-                        p {
-                            +"The following packages have updated versions"
-                        }
-                        table {
-                            outdated.forEach {
-                                tr {
-                                    td {
-                                        +it.name
-                                    }
-                                    td {
-                                        +"${it.currentVersion} &rarr; ${it.availableVersion}"
+                        if (outdated.isNotEmpty()) {
+                            p {
+                                +"The following packages have updated versions"
+                            }
+                            table {
+                                outdated.forEach {
+                                    tr {
+                                        td {
+                                            +it.name
+                                        }
+                                        td {
+                                            +"${it.currentVersion} &rarr; ${it.availableVersion}"
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    p {
-                        attributes["style"] = "text-align:right"
-                        small {
-                            +"Generated with "
-                            a(href = "https://plugins.gradle.org/plugin/com.cmgapps.npm.versions") {
-                                +"NPM Versions Gradle Plugin"
+                        p {
+                            attributes["style"] = "text-align:right"
+                            small {
+                                +"Generated with "
+                                a(href = "https://plugins.gradle.org/plugin/com.cmgapps.npm.versions") {
+                                    +"NPM Versions Gradle Plugin"
+                                }
                             }
                         }
                     }
                 }
+            PrintStream(outputStream).use { printStream ->
+                printStream.print(html)
             }
-        PrintStream(outputStream).use { printStream ->
-            printStream.print(html)
         }
     }
-}
 
 internal class HTML : TagWithText("html") {
     init {
