@@ -18,7 +18,7 @@ your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) proj
 
 ```kotlin
 plugins {
-    id("com.cmgapps.npm.versions") version "0.4.0"
+    id("com.cmgapps.npm.versions") version "0.4.1"
 }
 ```
 
@@ -29,7 +29,7 @@ plugins {
 
 ```groovy
 plugins {
-    id 'com.cmgapps.npm.versions' version '0.4.0'
+    id 'com.cmgapps.npm.versions' version '0.4.1'
 }
 ```
 
@@ -48,7 +48,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath("com.cmgapps.gradle:gradle-npm-versions-plugin:0.4.0")
+        classpath("com.cmgapps.gradle:gradle-npm-versions-plugin:0.4.1")
     }
 }
 
@@ -68,7 +68,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.cmgapps.gradle:gradle-npm-versions-plugin:0.4.0'
+        classpath 'com.cmgapps.gradle:gradle-npm-versions-plugin:0.4.1'
     }
 }
 
