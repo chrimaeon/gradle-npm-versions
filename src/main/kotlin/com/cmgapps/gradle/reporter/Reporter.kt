@@ -33,7 +33,7 @@ abstract class PackageSingleFileReport(
 
     override fun getDisplayName(): String = "NPM Versions Report for $name"
 
-    @Deprecated("Deprecated in Java", replaceWith = ReplaceWith("outputLocation.set"))
+    @Deprecated("Deprecated in Java", replaceWith = ReplaceWith("getOutputLocation().set"))
     override fun setDestination(file: File) {
         outputLocation.fileValue(file)
     }

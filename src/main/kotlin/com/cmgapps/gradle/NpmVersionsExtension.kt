@@ -14,6 +14,9 @@ import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
+private const val REPORTS_DIR = "reports/npmVersions/"
+private const val REPORT_NAME = "report"
+
 abstract class NpmVersionsExtension
     @Inject
     constructor(
@@ -25,7 +28,7 @@ abstract class NpmVersionsExtension
                 enabled = objects.property<Boolean>().convention(true),
                 outputFile =
                     objects.fileProperty().convention(
-                        project.layout.buildDirectory.file("npmVersions/report.txt"),
+                        project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.txt"),
                     ),
             )
 
@@ -36,7 +39,7 @@ abstract class NpmVersionsExtension
                 enabled = objects.property<Boolean>().convention(false),
                 outputFile =
                     objects.fileProperty().convention(
-                        project.layout.buildDirectory.file("npmVersions/report.json"),
+                        project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.json"),
                     ),
             )
 
@@ -47,7 +50,7 @@ abstract class NpmVersionsExtension
                 enabled = objects.property<Boolean>().convention(false),
                 outputFile =
                     objects.fileProperty().convention(
-                        project.layout.buildDirectory.file("npmVersions/report.html"),
+                        project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.html"),
                     ),
             )
 
@@ -58,7 +61,7 @@ abstract class NpmVersionsExtension
                 enabled = objects.property<Boolean>().convention(false),
                 outputFile =
                     objects.fileProperty().convention(
-                        project.layout.buildDirectory.file("npmVersions/report.xml"),
+                        project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.xml"),
                     ),
             )
 
