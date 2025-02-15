@@ -182,16 +182,16 @@ abstract class NpmVersionTask
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
-            val version =
-                try {
-                    Semver(dependency.version)
-                } catch (e: Exception) {
-                    logger.warn("Could not parse version '${dependency.version}' for package '${dependency.name}'")
-                    return
-                }
+            // check for valid version
+            try {
+                Semver(dependency.version)
+            } catch (e: Exception) {
+                logger.warn("Could not parse version '${dependency.version}' for package '${dependency.name}'")
+                return
+            }
             submit(CheckNpmPackageAction::class.java) {
                 dependencyName.set(dependency.name)
-                dependencyVersion.set(version)
+                dependencyVersion.set(dependency.version)
                 outputDirectory.set(this@NpmVersionTask.outputDirectory)
                 networkService.set(this@NpmVersionTask.networkService)
             }
@@ -229,7 +229,7 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
             Json.encodeToStream(
                 Package(
                     name = response.name,
-                    currentVersion = parameters.dependencyVersion.get(),
+                    currentVersion = Semver(parameters.dependencyVersion.get()),
                     availableVersion = Semver(response.version),
                 ),
                 it,
@@ -245,7 +245,7 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
 
     interface Params : WorkParameters {
         val dependencyName: Property<String>
-        val dependencyVersion: Property<Semver>
+        val dependencyVersion: Property<String>
         val outputDirectory: DirectoryProperty
         val networkService: Property<NetworkService>
     }

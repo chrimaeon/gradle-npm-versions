@@ -31,7 +31,6 @@ import org.hamcrest.Matchers.isA
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.semver4j.Semver
 import java.io.File
 import java.nio.file.Path
 
@@ -88,7 +87,7 @@ class CheckNpmPackageActionShould {
                     object : Params {
                         override val dependencyName = project.objects.property<String>().value("my_library")
                         override val dependencyVersion =
-                            project.objects.property<Semver>().value(Semver("1.0.0-alpha.1"))
+                            project.objects.property<String>().value("1.0.0-alpha.1")
                         override val outputDirectory =
                             project.objects.directoryProperty().apply {
                                 set(outputDir.toFile())
