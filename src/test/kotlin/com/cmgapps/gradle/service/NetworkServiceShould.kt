@@ -67,7 +67,7 @@ class NetworkServiceShould {
         runTest {
             val response = networkService.get("path1", "path2")
 
-            assertThat(response.request.url.pathSegments, contains("path1", "path2"))
+            assertThat(response.request.url.segments, contains("path1", "path2"))
         }
 
     @Test

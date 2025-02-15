@@ -6,7 +6,6 @@
 
 package com.cmgapps.gradle.reporter
 
-import com.cmgapps.gradle.JSON_REPORT_NAME
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -21,8 +20,6 @@ abstract class JsonReport
     constructor(
         name: String,
     ) : PackageSingleFileReport(name) {
-        override fun getName(): String = JSON_REPORT_NAME
-
         private val json =
             Json {
                 prettyPrint = true

@@ -1,4 +1,4 @@
-# Gradle Licenses Plugin [![Build & Test](https://github.com/chrimaeon/gradle-npm-versions/actions/workflows/main.yml/badge.svg)](https://github.com/chrimaeon/gradle-npm-versions/actions/workflows/main.yml)
+# Gradle Licenses Plugin [![Build & Test](https://github.com/chrimaeon/gradle-npm-versions/actions/workflows/main.yml/badge.svg)](https://github.com/chrimaeon/gradle-npm-versions/actions/workflows/main.yml) [![codecov](https://codecov.io/github/chrimaeon/gradle-npm-versions/graph/badge.svg?token=QY57GJ2ZCV)](https://codecov.io/github/chrimaeon/gradle-npm-versions)
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg?style=for-the-badge)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Gradle Plugin](https://img.shields.io/badge/Gradle-8.0%2B-%2302303A.svg?style=for-the-badge&logo=Gradle)](https://gradle.org/)

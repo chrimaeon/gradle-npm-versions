@@ -19,9 +19,9 @@ import io.ktor.client.call.body
 import io.ktor.http.encodeURLPathPart
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectSet
@@ -182,9 +182,16 @@ abstract class NpmVersionTask
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
+            val version =
+                try {
+                    Semver(dependency.version)
+                } catch (e: Exception) {
+                    logger.warn("Could not parse version '${dependency.version}' for package '${dependency.name}'")
+                    return
+                }
             submit(CheckNpmPackageAction::class.java) {
                 dependencyName.set(dependency.name)
-                dependencyVersion.set(dependency.version)
+                dependencyVersion.set(version)
                 outputDirectory.set(this@NpmVersionTask.outputDirectory)
                 networkService.set(this@NpmVersionTask.networkService)
             }
@@ -207,6 +214,7 @@ abstract class NpmVersionTask
     }
 
 abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> {
+    @OptIn(ExperimentalSerializationApi::class)
     override fun execute() {
         val outputDirectory = parameters.outputDirectory
         val dependencyName = parameters.dependencyName.get()
@@ -217,15 +225,14 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
 
         FileOutputStream(
             outputDirectory.asFile.get().resolve(dependencyName.encodeURLPathPart() + ".json"),
-        ).bufferedWriter().use {
-            it.write(
-                Json.encodeToString(
-                    Package(
-                        name = response.name,
-                        currentVersion = Semver(parameters.dependencyVersion.get()),
-                        availableVersion = Semver(response.version),
-                    ),
+        ).use {
+            Json.encodeToStream(
+                Package(
+                    name = response.name,
+                    currentVersion = parameters.dependencyVersion.get(),
+                    availableVersion = Semver(response.version),
                 ),
+                it,
             )
         }
     }
@@ -238,7 +245,7 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
 
     interface Params : WorkParameters {
         val dependencyName: Property<String>
-        val dependencyVersion: Property<String>
+        val dependencyVersion: Property<Semver>
         val outputDirectory: DirectoryProperty
         val networkService: Property<NetworkService>
     }

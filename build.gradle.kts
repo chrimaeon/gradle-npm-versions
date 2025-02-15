@@ -8,6 +8,8 @@
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Date
@@ -23,7 +25,8 @@ plugins {
     alias(libs.plugins.versions)
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
-    alias(libs.plugins.pluginPublish)
+    alias(libs.plugins.gradle.publish)
+    alias(libs.plugins.kotlinx.kover)
     id("cmgapps.gradle.test")
 }
 
@@ -108,6 +111,33 @@ changelog {
     header.set(provider { version.get() })
 }
 
+kover {
+    useJacoco()
+    currentProject {
+        sources {
+            excludedSourceSets.addAll(functionalTestSourceSet.name)
+        }
+    }
+
+    reports {
+        filters {
+            excludes {
+                annotatedBy("kotlinx.serialization.Serializable")
+            }
+        }
+
+        verify {
+            rule("Minimal Line coverage") {
+                bound {
+                    minValue = 80
+                    coverageUnits = CoverageUnit.LINE
+                    aggregationForGroup = AggregationType.COVERED_PERCENTAGE
+                }
+            }
+        }
+    }
+}
+
 tasks {
     wrapper {
         distributionType = Wrapper.DistributionType.ALL
@@ -149,6 +179,10 @@ tasks {
                 ),
             )
         }
+    }
+
+    koverVerify {
+        dependsOn("ktlint")
     }
 
     withType<DependencyUpdatesTask> {
@@ -202,6 +236,7 @@ dependencies {
     testImplementation(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.hamcrest)
     testImplementation(libs.kotlin.gradle)
     testImplementation(libs.ktor.client.mock)
@@ -212,6 +247,8 @@ dependencies {
     "functionalTestImplementation"(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
+    "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+
     "functionalTestImplementation"(libs.kotlin.gradle)
     "functionalTestImplementation"(libs.hamcrest)
     "functionalTestImplementation"(gradleTestKit())
