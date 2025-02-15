@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.semver4j.Semver
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.file.Path
@@ -364,6 +365,62 @@ class NpmVersionTaskShould {
             `is`(expected),
         )
     }
+
+    @Test
+    fun `report invalid version`() {
+        val outputDir = testProjectDir.resolve("output")
+
+        val task =
+            project.tasks.create(
+                "npmVersions",
+                NpmVersionTask::class.java,
+                TestWorkExecutor(project),
+                project.objects,
+            )
+
+        val configuration = project.configurations.create("implementation")
+
+        project.dependencies.add(
+            "implementation",
+            NpmDependency(
+                objectFactory = project.objects,
+                name = TEST_DEP_NAME,
+                version = "This is not a SemVer version",
+            ),
+        )
+
+        task.outputDirectory.set(outputDir.toFile().apply { mkdirs() })
+
+        val reportOutputFile = outputDir.resolve("report.txt")
+
+        task.reports.plainText.required
+            .set(true)
+        task.reports.plainText.outputLocation
+            .set(reportOutputFile.toFile())
+
+        task.configurationToCheck(
+            project.provider {
+                configuration
+            },
+        )
+
+        task.action()
+
+        // TODO: figure out how to capture log output
+
+        assertThat(
+            reportOutputFile.toFile().readText(),
+            `is`(
+                """
+                |┌──────────────┐
+                |│ NPM Packages │
+                |└──────────────┘
+                |
+                |
+                """.trimMargin(),
+            ),
+        )
+    }
 }
 
 private class TestWorkExecutor(
@@ -420,7 +477,7 @@ private class TestCheckNpmPackageAction(
         object : Params {
             override val dependencyName: Property<String> = project.objects.property()
 
-            override val dependencyVersion: Property<String> =
+            override val dependencyVersion: Property<Semver> =
                 project.objects.property()
 
             override val outputDirectory: DirectoryProperty =
