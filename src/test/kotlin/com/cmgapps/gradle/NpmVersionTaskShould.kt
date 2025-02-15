@@ -39,7 +39,6 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.semver4j.Semver
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.file.Path
@@ -477,7 +476,7 @@ private class TestCheckNpmPackageAction(
         object : Params {
             override val dependencyName: Property<String> = project.objects.property()
 
-            override val dependencyVersion: Property<Semver> =
+            override val dependencyVersion: Property<String> =
                 project.objects.property()
 
             override val outputDirectory: DirectoryProperty =
