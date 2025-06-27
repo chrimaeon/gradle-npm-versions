@@ -14,6 +14,12 @@
 
 ### Security
 
+## 0.4.4
+
+### Changed
+
+- updated several libraries
+
 ## 0.4.3
 
 ### Fixed
