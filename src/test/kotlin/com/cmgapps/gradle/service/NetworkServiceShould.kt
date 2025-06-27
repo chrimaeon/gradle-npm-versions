@@ -14,32 +14,32 @@ import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.test.runTest
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.mapProperty
-import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class NetworkServiceShould {
     private lateinit var networkServiceParams: NetworkService.Params
     private lateinit var networkService: NetworkService
 
+    private lateinit var baseUrlProperty: Property<String>
+
     @BeforeEach
     fun setup() {
         val project = ProjectBuilder.builder().build()
+        baseUrlProperty = project.objects.property(String::class.java).convention("https://localhost")
         networkServiceParams =
             object : NetworkService.Params {
                 override val baseUrl: Property<String>
-                    get() = project.objects.property<String>().convention("https://localhost")
+                    get() = baseUrlProperty
                 override val additionalHeaders: MapProperty<String, String>
-                    get() = project.objects.mapProperty()
+                    get() = project.objects.mapProperty(String::class.java, String::class.java)
                 override val engine: Property<HttpClientEngine>
                     get() =
-                        project.objects.property<HttpClientEngine>().convention(
+                        project.objects.property(HttpClientEngine::class.java).convention(
                             MockEngine {
                                 respondOk()
                             },
@@ -51,11 +51,10 @@ class NetworkServiceShould {
             }
     }
 
-    @Disabled("baseUrl not set in tests 🤨")
     @Test
     fun `set base url`() =
         runTest {
-            networkServiceParams.baseUrl.set("https://cmgapps.com")
+            baseUrlProperty.set("https://cmgapps.com")
 
             val response = networkService.get("")
 

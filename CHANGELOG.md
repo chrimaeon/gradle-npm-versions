@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- updated several libraries
 
 ### Deprecated
 
