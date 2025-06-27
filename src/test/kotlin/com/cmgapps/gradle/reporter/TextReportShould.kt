@@ -10,7 +10,6 @@ import com.cmgapps.gradle.PLAIN_TEXT_REPORT_NAME
 import com.cmgapps.gradle.model.Package
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
@@ -103,7 +102,7 @@ class TestTextReport(
             .builder()
             .build()
             .objects
-            .property()
+            .property(Boolean::class.java)
 
     override fun getOutputLocation(): RegularFileProperty =
         ProjectBuilder

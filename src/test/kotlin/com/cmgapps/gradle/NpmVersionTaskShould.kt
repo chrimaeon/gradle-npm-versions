@@ -16,15 +16,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.mapProperty
-import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.ProcessWorkerSpec
@@ -67,12 +64,13 @@ class NpmVersionTaskShould {
     fun `create console report`() {
         val outputDir = testProjectDir.resolve("output")
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -115,12 +113,13 @@ class NpmVersionTaskShould {
     fun `create plain text report`() {
         val outputDir = testProjectDir.resolve("output")
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -167,12 +166,13 @@ class NpmVersionTaskShould {
     fun `create json report`() {
         val outputDir = testProjectDir.resolve("output")
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -222,12 +222,13 @@ class NpmVersionTaskShould {
     fun `create html report`() {
         val outputDir = testProjectDir.resolve("output")
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -312,12 +313,13 @@ class NpmVersionTaskShould {
     fun `create xml report`() {
         val outputDir = testProjectDir.resolve("output")
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -370,12 +372,13 @@ class NpmVersionTaskShould {
         val outputDir = testProjectDir.resolve("output")
 
         val task =
-            project.tasks.create(
-                "npmVersions",
-                NpmVersionTask::class.java,
-                TestWorkExecutor(project),
-                project.objects,
-            )
+            project.tasks
+                .register(
+                    "npmVersions",
+                    NpmVersionTask::class.java,
+                    TestWorkExecutor(project),
+                    project.objects,
+                ).get()
 
         val configuration = project.configurations.create("implementation")
 
@@ -474,16 +477,16 @@ private class TestCheckNpmPackageAction(
 ) : CheckNpmPackageAction() {
     val params =
         object : Params {
-            override val dependencyName: Property<String> = project.objects.property()
+            override val dependencyName: Property<String> = project.objects.property(String::class.java)
 
             override val dependencyVersion: Property<String> =
-                project.objects.property()
+                project.objects.property(String::class.java)
 
             override val outputDirectory: DirectoryProperty =
                 project.objects.directoryProperty()
 
             override val networkService: Property<NetworkService> =
-                project.objects.property<NetworkService>().value(TestNetworkService(project))
+                project.objects.property(NetworkService::class.java).value(TestNetworkService(project))
         }
 
     override fun getParameters(): Params = params
@@ -494,10 +497,12 @@ private class TestNetworkService(
 ) : NetworkService() {
     val params =
         object : Params {
-            override val baseUrl: Property<String> = project.objects.property<String>().value("https://cmgapps.com")
-            override val additionalHeaders: MapProperty<String, String> = project.objects.mapProperty()
+            override val baseUrl: Property<String> =
+                project.objects.property(String::class.java).value("https://cmgapps.com")
+            override val additionalHeaders: MapProperty<String, String> =
+                project.objects.mapProperty(String::class.java, String::class.java)
             override val engine: Property<HttpClientEngine> =
-                project.objects.property<HttpClientEngine>().value(
+                project.objects.property(HttpClientEngine::class.java).value(
                     MockEngine { request ->
                         when {
                             request.url.segments[0] == TEST_DEP_NAME ->

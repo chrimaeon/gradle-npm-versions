@@ -16,7 +16,6 @@ import java.util.Date
 import java.util.Properties
 
 plugins {
-    `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
     idea
