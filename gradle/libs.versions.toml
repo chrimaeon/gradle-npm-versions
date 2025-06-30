@@ -30,7 +30,7 @@ ktlint-cli = "com.pinterest.ktlint:ktlint-cli:1.6.0"
 
 semver = "org.semver4j:semver4j:5.8.0"
 
-networknt-jsonschemavalidator = "com.networknt:json-schema-validator:1.5.7"
+networknt-jsonschemavalidator = "com.networknt:json-schema-validator:1.5.8"
 
 [bundles]
 
