@@ -36,8 +36,6 @@ import org.gradle.api.reporting.Reporting
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.namedDomainObjectSet
-import org.gradle.kotlin.dsl.property
 import org.gradle.util.internal.ConfigureUtil
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
@@ -69,7 +67,7 @@ internal const val XML_REPORT_NAME = "xml"
 
 internal class PackageReportContainerImpl(
     private val objects: ObjectFactory,
-) : NamedDomainObjectSet<PackageSingleFileReport> by objects.namedDomainObjectSet(PackageSingleFileReport::class),
+) : NamedDomainObjectSet<PackageSingleFileReport> by objects.namedDomainObjectSet(PackageSingleFileReport::class.java),
     PackageReportContainer {
     init {
         add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME)
@@ -124,7 +122,7 @@ abstract class NpmVersionTask
         private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
 
         @get:Internal
-        val networkService: Property<NetworkService> = objects.property()
+        val networkService: Property<NetworkService> = objects.property(NetworkService::class.java)
 
         @get:OutputDirectory
         val outputDirectory: DirectoryProperty =
@@ -159,9 +157,9 @@ abstract class NpmVersionTask
                     .map { it.inputStream().use { stream -> Json.decodeFromStream<Package>(stream) } }
                     .partition { it.currentVersion < it.availableVersion }
 
-            reports.configureEach {
-                this.outdated = outdated
-                this.latest = latest
+            reports.configureEach { report ->
+                report.outdated = outdated
+                report.latest = latest
             }
 
             reports.plainText.writePackages(System.out)
@@ -182,11 +180,18 @@ abstract class NpmVersionTask
         }
 
         private fun WorkQueue.enqueue(dependency: NpmDependency) {
-            submit(CheckNpmPackageAction::class.java) {
-                dependencyName.set(dependency.name)
-                dependencyVersion.set(dependency.version)
-                outputDirectory.set(this@NpmVersionTask.outputDirectory)
-                networkService.set(this@NpmVersionTask.networkService)
+            // check for valid version
+            try {
+                Semver(dependency.version)
+            } catch (e: Exception) {
+                logger.warn("Could not parse version '${dependency.version}' for package '${dependency.name}'")
+                return
+            }
+            submit(CheckNpmPackageAction::class.java) { params ->
+                params.dependencyName.set(dependency.name)
+                params.dependencyVersion.set(dependency.version)
+                params.outputDirectory.set(this@NpmVersionTask.outputDirectory)
+                params.networkService.set(this@NpmVersionTask.networkService)
             }
         }
 

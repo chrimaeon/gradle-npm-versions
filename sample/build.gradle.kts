@@ -5,7 +5,7 @@
  */
 
 plugins {
-    kotlin("multiplatform") version "1.9.23"
+    kotlin("multiplatform") version "2.2.0"
     id("com.cmgapps.npm.versions") version "1.0.0"
 }
 

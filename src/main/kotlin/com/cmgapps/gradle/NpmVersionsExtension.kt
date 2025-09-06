@@ -11,7 +11,6 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 private const val REPORTS_DIR = "reports/npmVersions/"
@@ -25,7 +24,7 @@ abstract class NpmVersionsExtension
     ) {
         val plainText: Reporter =
             Reporter(
-                enabled = objects.property<Boolean>().convention(true),
+                enabled = objects.property(Boolean::class.java).convention(true),
                 outputFile =
                     objects.fileProperty().convention(
                         project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.txt"),
@@ -36,7 +35,7 @@ abstract class NpmVersionsExtension
 
         val json: Reporter =
             Reporter(
-                enabled = objects.property<Boolean>().convention(false),
+                enabled = objects.property(Boolean::class.java).convention(false),
                 outputFile =
                     objects.fileProperty().convention(
                         project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.json"),
@@ -47,7 +46,7 @@ abstract class NpmVersionsExtension
 
         val html: Reporter =
             Reporter(
-                enabled = objects.property<Boolean>().convention(false),
+                enabled = objects.property(Boolean::class.java).convention(false),
                 outputFile =
                     objects.fileProperty().convention(
                         project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.html"),
@@ -58,7 +57,7 @@ abstract class NpmVersionsExtension
 
         val xml: Reporter =
             Reporter(
-                enabled = objects.property<Boolean>().convention(false),
+                enabled = objects.property(Boolean::class.java).convention(false),
                 outputFile =
                     objects.fileProperty().convention(
                         project.layout.buildDirectory.file("$REPORTS_DIR$REPORT_NAME.xml"),

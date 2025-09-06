@@ -56,8 +56,8 @@ class NpmVersionsExtensionShould {
         reporter: Reporter,
         enabled: Boolean,
     ) {
-        func {
-            this.enabled.set(enabled)
+        func { reporter ->
+            reporter.enabled.set(enabled)
         }
 
         assertThat(reporter.enabled.get(), `is`(enabled))
@@ -88,8 +88,8 @@ class NpmVersionsExtensionShould {
         reporter: Reporter,
         file: File,
     ) {
-        func {
-            outputFile.set(file)
+        func { reporter ->
+            reporter.outputFile.set(file)
         }
 
         assertThat(

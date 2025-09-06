@@ -14,6 +14,18 @@
 
 ### Security
 
+## 0.4.4
+
+### Changed
+
+- updated several libraries
+
+## 0.4.3
+
+### Fixed
+
+- Handle non-valid SemVer versions on package declarations
+
 ## 0.4.1
 
 ### Changed
