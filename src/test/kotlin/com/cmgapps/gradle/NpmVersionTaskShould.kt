@@ -430,7 +430,7 @@ private class TestWorkExecutor(
 ) : WorkerExecutor {
     val workQueue =
         object : WorkQueue {
-            override fun <T : WorkParameters?> submit(
+            override fun <T : WorkParameters> submit(
                 workActionClass: Class<out WorkAction<T>>?,
                 parameterAction: Action<in T>?,
             ) {
@@ -440,7 +440,6 @@ private class TestWorkExecutor(
 
                 @Suppress(
                     "UNCHECKED_CAST",
-                    "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
                 )
                 parameterAction?.execute(action.parameters as T)
                 action.parameters.networkService.set(TestNetworkService(project))

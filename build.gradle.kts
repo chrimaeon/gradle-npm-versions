@@ -112,6 +112,7 @@ changelog {
 
 kover {
     useJacoco()
+    jacocoVersion = libs.versions.jacoco
     currentProject {
         sources {
             excludedSourceSets.addAll(functionalTestSourceSet.name)

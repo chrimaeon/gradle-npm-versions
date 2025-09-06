@@ -11,7 +11,6 @@ import groovy.lang.Closure
 import org.gradle.api.reporting.Report
 import org.gradle.api.reporting.SingleFileReport
 import org.gradle.util.internal.ConfigureUtil
-import java.io.File
 import java.io.OutputStream
 
 interface PackageReport {
@@ -32,11 +31,6 @@ abstract class PackageSingleFileReport(
     override fun getName(): String = name
 
     override fun getDisplayName(): String = "NPM Versions Report for $name"
-
-    @Deprecated("Deprecated in Java", replaceWith = ReplaceWith("getOutputLocation().set"))
-    override fun setDestination(file: File) {
-        outputLocation.fileValue(file)
-    }
 
     override fun getOutputType(): Report.OutputType = Report.OutputType.FILE
 
