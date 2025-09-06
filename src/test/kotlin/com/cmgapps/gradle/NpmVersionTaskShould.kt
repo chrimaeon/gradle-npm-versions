@@ -438,7 +438,10 @@ private class TestWorkExecutor(
 
                 val action = TestCheckNpmPackageAction(project)
 
-                @Suppress("UNCHECKED_CAST")
+                @Suppress(
+                    "UNCHECKED_CAST",
+                    "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+                )
                 parameterAction?.execute(action.parameters as T)
                 action.parameters.networkService.set(TestNetworkService(project))
 

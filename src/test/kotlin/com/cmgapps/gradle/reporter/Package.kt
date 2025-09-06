@@ -13,8 +13,8 @@ val outdatedPackages =
     listOf(
         Package(
             name = "outdated lib",
-            currentVersion = Semver.of(1, 0, 0),
-            availableVersion = Semver.of(2, 0, 0),
+            currentVersion = Semver.create(1, 0, 0),
+            availableVersion = Semver.create(2, 0, 0),
         ),
     )
 
@@ -22,7 +22,7 @@ val latestPackages =
     listOf(
         Package(
             name = "latest list",
-            currentVersion = Semver.of(1, 0, 0),
-            availableVersion = Semver.of(1, 0, 0),
+            currentVersion = Semver.create(1, 0, 0),
+            availableVersion = Semver.create(1, 0, 0),
         ),
     )
