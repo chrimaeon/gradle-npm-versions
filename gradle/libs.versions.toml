@@ -8,7 +8,7 @@ jacoco = "0.8.13"
 [plugins]
 
 versions = "com.github.ben-manes.versions:0.52.0"
-jetbrains-changelog = "org.jetbrains.changelog:2.2.1"
+jetbrains-changelog = "org.jetbrains.changelog:2.4.0"
 gradle-publish = "com.gradle.plugin-publish:2.0.0"
 kotlinx-kover = "org.jetbrains.kotlinx.kover:0.9.1"
 
@@ -27,7 +27,7 @@ junit-bom = "org.junit:junit-bom:5.13.4"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 hamcrest = "org.hamcrest:hamcrest:3.0"
 
-ktlint-cli = "com.pinterest.ktlint:ktlint-cli:1.6.0"
+ktlint-cli = "com.pinterest.ktlint:ktlint-cli:1.7.1"
 
 semver = "org.semver4j:semver4j:6.0.0"
 
