@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 gradle = "9.0.0"
 ktor = "3.2.3"
 jacoco = "0.8.13"
