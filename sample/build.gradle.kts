@@ -5,7 +5,7 @@
  */
 
 plugins {
-    kotlin("multiplatform") version "2.2.0"
+    kotlin("multiplatform") version "2.2.21"
     id("com.cmgapps.npm.versions") version "1.0.0"
 }
 
@@ -35,7 +35,8 @@ kotlin {
         named("jsMain") {
             dependencies {
                 implementation("org.apache.commons:commons-csv:1.9.0")
-                implementation(npm("bootstrap", "5.3.3"))
+                // keep up-to-date
+                implementation(npm("bootstrap", "5.3.8"))
                 implementation(npm("kotlin", "1.0.0"))
                 implementation(npm("@popperjs/core", "1.0.0"))
             }

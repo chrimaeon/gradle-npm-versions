@@ -6,6 +6,8 @@
 
 ### Changed
 
+- The minimum Gradle version is now 9.0
+
 ### Deprecated
 
 ### Removed

@@ -46,7 +46,7 @@ class NpmVersionsPlugin : Plugin<Project> {
                                 JSON_REPORT_NAME -> it.configureReports(npmVersionsExtension.json)
                                 HTML_REPORT_NAME -> it.configureReports(npmVersionsExtension.html)
                                 XML_REPORT_NAME -> it.configureReports(npmVersionsExtension.xml)
-                                else -> throw IllegalStateException("report configuration not provided")
+                                else -> error("report configuration not provided")
                             }
                         }
                     }

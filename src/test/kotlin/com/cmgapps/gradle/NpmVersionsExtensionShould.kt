@@ -56,8 +56,8 @@ class NpmVersionsExtensionShould {
         reporter: Reporter,
         enabled: Boolean,
     ) {
-        func { reporter ->
-            reporter.enabled.set(enabled)
+        func { actionReporter ->
+            actionReporter.enabled.set(enabled)
         }
 
         assertThat(reporter.enabled.get(), `is`(enabled))

@@ -11,7 +11,9 @@ import com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.util.Date
 import java.util.Properties
 
@@ -86,14 +88,30 @@ idea {
     }
 }
 
+// HEY! If you update the minimum-supported Gradle version, check to see if the Kotlin language version or
+// Java targets below can be bumped. See https://docs.gradle.org/current/userguide/compatibility.html.
+val minimumGradleVersion = "9.0"
+configurations.apiElements {
+    attributes {
+        attribute(
+            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+            objects.named(GradlePluginApiVersion::class.java, minimumGradleVersion),
+        )
+    }
+}
+
 java {
-    targetCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
     jvmToolchain(17)
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
+        apiVersion = KotlinVersion.KOTLIN_2_2
+        languageVersion = KotlinVersion.KOTLIN_2_2
+        jvmTarget = JvmTarget.JVM_17
+        jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
     }
 }
 
