@@ -10,7 +10,7 @@ jacoco = "0.8.13"
 versions = "com.github.ben-manes.versions:0.53.0"
 jetbrains-changelog = "org.jetbrains.changelog:2.4.0"
 gradle-publish = "com.gradle.plugin-publish:2.0.0"
-kotlinx-kover = "org.jetbrains.kotlinx.kover:0.9.1"
+kotlinx-kover = "org.jetbrains.kotlinx.kover:0.9.3"
 
 [libraries]
 
