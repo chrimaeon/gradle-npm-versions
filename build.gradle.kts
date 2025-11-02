@@ -217,7 +217,7 @@ tasks {
 
     val updateReadme by registering {
         val readmeFile = rootDir.resolve("README.md")
-        val version: String by project
+        val version: String = project.version as String
 
         inputs.property("libVersion", version)
         outputs.file(readmeFile)
