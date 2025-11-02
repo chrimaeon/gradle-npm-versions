@@ -9,8 +9,8 @@ package com.cmgapps.gradle.reporter
 import com.cmgapps.gradle.JSON_REPORT_NAME
 import com.cmgapps.gradle.model.Package
 import com.networknt.schema.InputFormat
-import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SpecVersion.VersionFlag
+import com.networknt.schema.SchemaRegistry
+import com.networknt.schema.SpecificationVersion
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.testfixtures.ProjectBuilder
@@ -106,8 +106,8 @@ class JsonReportShould : OutputStreamTest() {
     @Test
     fun `create valid json`() {
         val schema =
-            JsonSchemaFactory
-                .getInstance(VersionFlag.V202012)
+            SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema(
                     javaClass.getResourceAsStream("/schema/packages-schema.json"),
                 )
@@ -122,10 +122,9 @@ class JsonReportShould : OutputStreamTest() {
                 outputStream.asString(),
                 InputFormat.JSON,
             ) { executionContext ->
-                with(executionContext.executionConfig) {
-                    formatAssertionsEnabled = true
-                    isDebugEnabled = true
-                }
+                executionContext.executionConfig({ executionConfigBuilder ->
+                    executionConfigBuilder.formatAssertionsEnabled(true)
+                })
             }
 
         assertThat(result, empty())
