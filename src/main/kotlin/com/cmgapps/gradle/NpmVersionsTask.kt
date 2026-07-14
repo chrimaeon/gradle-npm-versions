@@ -26,13 +26,14 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.Reporting
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -44,6 +45,7 @@ import org.gradle.workers.WorkerExecutor
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import org.semver4j.Semver
 import java.io.FileOutputStream
+import java.io.Serializable
 import javax.inject.Inject
 
 interface PackageReportContainer : ReportContainer<PackageSingleFileReport> {
@@ -119,7 +121,8 @@ abstract class NpmVersionTask
         objects: ObjectFactory,
     ) : DefaultTask(),
         Reporting<PackageReportContainer> {
-        private val dependenciesSetProviders: MutableList<Provider<DependencySet>> = mutableListOf()
+        @get:Input
+        internal abstract val npmDependencies: ListProperty<NpmCoordinates>
 
         @get:Internal
         val networkService: Property<NetworkService> = objects.property(NetworkService::class.java)
@@ -129,7 +132,17 @@ abstract class NpmVersionTask
             objects.directoryProperty().convention(project.layout.buildDirectory.dir("npm-versions/dependencies"))
 
         fun configurationToCheck(configuration: Provider<Configuration>) {
-            dependenciesSetProviders.add(configuration.map { it.allDependencies })
+            val dependencies =
+                configuration
+                    .map {
+                        it.allDependencies
+                            .filterIsInstance<NpmDependency>()
+                            .mapTo(mutableListOf()) { npmDependency ->
+                                NpmCoordinates(name = npmDependency.name, version = npmDependency.version)
+                            }
+                    }
+
+            this.npmDependencies.set(dependencies)
         }
 
         @OptIn(ExperimentalSerializationApi::class)
@@ -137,14 +150,9 @@ abstract class NpmVersionTask
         fun action() {
             val workQueue = workerExecutor.noIsolation()
 
-            dependenciesSetProviders
-                .fold(mutableListOf<NpmDependency>()) { acc, provider ->
-                    acc.apply {
-                        addAll(provider.get().filterIsInstance<NpmDependency>())
-                    }
-                }.forEach {
-                    workQueue.enqueue(it)
-                }
+            npmDependencies.get().forEach {
+                workQueue.enqueue(it)
+            }
 
             workQueue.await()
 
@@ -165,7 +173,7 @@ abstract class NpmVersionTask
             reports.plainText.writePackages(System.out)
 
             reports.filter { it.required.get() }.forEach { report ->
-                (report as PackageSingleFileReport).write()
+                report.write()
             }
         }
 
@@ -179,7 +187,7 @@ abstract class NpmVersionTask
             }
         }
 
-        private fun WorkQueue.enqueue(dependency: NpmDependency) {
+        private fun WorkQueue.enqueue(dependency: NpmCoordinates) {
             // check for valid version
             try {
                 Semver(dependency.version)
@@ -248,3 +256,8 @@ abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> 
         val networkService: Property<NetworkService>
     }
 }
+
+internal class NpmCoordinates(
+    val name: String,
+    val version: String,
+) : Serializable
