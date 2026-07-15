@@ -10,7 +10,6 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -29,6 +28,7 @@ plugins {
     alias(libs.plugins.gradle.publish)
     alias(libs.plugins.kotlinx.kover)
     id("cmgapps.gradle.test")
+    alias(libs.plugins.buildconfig)
 }
 
 val pomProperties =
@@ -49,20 +49,42 @@ val pomArtifactId: String by pomProperties
 project.group = group
 version = versionName
 
-val functionalTestSourceSet: SourceSet =
-    sourceSets.create("functionalTest") {
-        val sourceSetName = name
-        kotlin {
-            srcDir("src/$sourceSetName/kotlin")
+testing {
+    suites {
+        val test: JvmTestSuite by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
         }
-        resources {
-            srcDirs(
-                sourceSets.main
-                    .get()
-                    .resources.srcDirs,
-            )
+
+        val functionalTestSuite =
+            register<JvmTestSuite>("functionalTest") {
+                dependencies {
+                    implementation(project())
+                    implementation(platform(libs.junit.bom))
+                    implementation(libs.junit.jupiter) {
+                        exclude(group = "org.hamcrest")
+                    }
+                    implementation(libs.hamcrest)
+                    implementation(gradleTestKit())
+                    implementation(libs.networknt.jsonschemavalidator)
+                    implementation(libs.java.diff.utils)
+                    implementation(libs.ktor.server.cio)
+                    implementation(libs.ktor.server.content.negotiation)
+                    implementation(libs.ktor.serialization.json)
+                }
+
+                targets.configureEach {
+                    testTask.configure {
+                        jvmArgs("-Xmx2g", "-Xms512m")
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+
+        tasks.check {
+            dependsOn(functionalTestSuite)
         }
     }
+}
 
 gradlePlugin {
     website.set(projectUrl)
@@ -78,14 +100,7 @@ gradlePlugin {
         }
     }
 
-    testSourceSets(functionalTestSourceSet)
-}
-
-idea {
-    module {
-        testSources.from(functionalTestSourceSet.kotlin.srcDirs)
-        testResources.from(functionalTestSourceSet.resources.srcDirs)
-    }
+    testSourceSets(sourceSets["functionalTest"])
 }
 
 // HEY! If you update the minimum-supported Gradle version, check to see if the Kotlin language version or
@@ -133,7 +148,7 @@ kover {
     jacocoVersion = libs.versions.jacoco
     currentProject {
         sources {
-            excludedSourceSets.addAll(functionalTestSourceSet.name)
+            excludedSourceSets.addAll(sourceSets["functionalTest"].name)
         }
     }
 
@@ -156,29 +171,20 @@ kover {
     }
 }
 
+buildConfig {
+    sourceSets.named("functionalTest") {
+        useKotlinOutput {
+            packageName = "com.cmgapps.gradle"
+            topLevelConstants = true
+        }
+        buildConfigField("MINIMUM_GRADLE_VERSION", minimumGradleVersion)
+    }
+}
+
 tasks {
     wrapper {
         distributionType = Wrapper.DistributionType.ALL
         gradleVersion = libs.versions.gradle.get()
-    }
-
-    val functionalTest by registering(Test::class) {
-        group = "verification"
-        testClassesDirs = functionalTestSourceSet.output.classesDirs
-        classpath = functionalTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-
-        testLogging {
-            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
-        }
-    }
-
-    check {
-        dependsOn(functionalTest)
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
     jar {
@@ -260,14 +266,4 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.networknt.jsonschemavalidator)
-
-    "functionalTestImplementation"(platform(libs.junit.bom))
-    "functionalTestImplementation"(libs.junit.jupiter) {
-        exclude(group = "org.hamcrest")
-    }
-    "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
-
-    "functionalTestImplementation"(libs.kotlin.gradle)
-    "functionalTestImplementation"(libs.hamcrest)
-    "functionalTestImplementation"(gradleTestKit())
 }

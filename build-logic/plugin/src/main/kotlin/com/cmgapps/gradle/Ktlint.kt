@@ -21,6 +21,7 @@ fun Project.configureKtlint() {
         val inputFiles =
             fileTree("src") {
                 include("**/*.kt")
+                exclude("**/build/**")
             }
         val outputDir = layout.buildDirectory.dir("reports")
 
@@ -33,7 +34,12 @@ fun Project.configureKtlint() {
             mainClass.set("com.pinterest.ktlint.Main")
             classpath = ktlintConfiguration
             jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
-            args = listOf("-F", "src/**/*.kt")
+            args =
+                listOf(
+                    "-F",
+                    "src/**/*.kt",
+                    "!src/**/build/**",
+                )
         }
 
         val ktlintTask =
@@ -48,6 +54,7 @@ fun Project.configureKtlint() {
                 args =
                     listOf(
                         "src/**/*.kt",
+                        "!src/**/build/**",
                         "--reporter=plain",
                         "--reporter=html,output=${outputDir.get().asFile.absolutePath}/ktlint.html",
                     )

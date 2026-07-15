@@ -22,6 +22,8 @@ abstract class NpmVersionsExtension
         project: Project,
         objects: ObjectFactory,
     ) {
+        val npmRegistryUrl: Property<String> = objects.property(String::class.java).convention("https://registry.npmjs.org/")
+
         val plainText: Reporter =
             Reporter(
                 enabled = objects.property(Boolean::class.java).convention(true),

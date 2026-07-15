@@ -1,0 +1,6 @@
+┌──────────────┐
+│ NPM Packages │
+└──────────────┘
+
+The following packages have updated versions:
+ • bootstrap [5.3.3 -> 5.3.8]

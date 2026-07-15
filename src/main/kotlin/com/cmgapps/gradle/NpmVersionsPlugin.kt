@@ -26,7 +26,7 @@ class NpmVersionsPlugin : Plugin<Project> {
 
                 val serviceProvider =
                     gradle.sharedServices.registerIfAbsent("npmNetworkService", NetworkService::class.java) {
-                        it.parameters.baseUrl.set("https://registry.npmjs.org/")
+                        it.parameters.baseUrl.set(npmVersionsExtension.npmRegistryUrl)
                         it.parameters.additionalHeaders.put(HttpHeaders.Accept, "application/vnd.npm.install-v1+json")
                     }
 

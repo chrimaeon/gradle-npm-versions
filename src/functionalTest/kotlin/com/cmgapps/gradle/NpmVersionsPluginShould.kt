@@ -6,84 +6,129 @@
 
 package com.cmgapps.gradle
 
-import com.cmgapps.gradle.util.plus
-import org.gradle.testkit.runner.GradleRunner
+import com.cmgapps.gradle.util.assertExpectedFiles
+import com.cmgapps.gradle.util.createBuildRunner
+import com.cmgapps.gradle.util.fixturesDir
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import io.ktor.server.util.getOrFail
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.gradle.testkit.runner.TaskOutcome
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
-import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.CleanupMode
-import org.junit.jupiter.api.io.TempDir
-import java.io.File
-import java.nio.file.Path
+import org.junit.jupiter.params.ParameterizedInvocationConstants
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 class NpmVersionsPluginShould {
-    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
-    lateinit var testProjectDir: Path
-
-    private lateinit var buildFile: File
+    private lateinit var server: EmbeddedServer<*, *>
 
     @BeforeEach
-    fun setup() {
-        File(testProjectDir.toFile(), "settings.gradle.kts").writeText("rootProject.name = \"gradle-npm-plugin\"")
-        buildFile = File(testProjectDir.toFile(), "build.gradle.kts")
+    fun setUp() {
+        server =
+            embeddedServer(CIO, port = 8080) {
+                install(ContentNegotiation) { json() }
+                routing {
+                    get("{packageName}/latest") {
+                        val pkg = call.parameters.getOrFail<String>("packageName")
+                        when (pkg) {
+                            "bootstrap" -> {
+                                call.respond(
+                                    buildJsonObject {
+                                        put("name", pkg)
+                                        put("version", "5.3.8")
+                                    },
+                                )
+                            }
 
-        @Language("gradle")
-        val build =
-            """
-            plugins {
-                id("org.jetbrains.kotlin.multiplatform") version "1.9.23"
-                id("com.cmgapps.npm.versions") version "1.0.0"
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            
-            """.trimIndent()
-        buildFile + build
-    }
+                            "kotlin" -> {
+                                call.respond(
+                                    buildJsonObject {
+                                        put("name", pkg)
+                                        put("version", "1.0.0")
+                                    },
+                                )
+                            }
 
-    @Disabled("KotlinMultiplatformExtension not present")
-    @Test
-    fun `report npm packages`() {
-        @Language("gradle")
-        val kotlinExtension =
-            """
-            kotlin {
-            
-                jvm()
-                js(IR) {
-                    browser()
-                }
-                
-                sourceSets {
-                    named("jsMain") {
-                        dependencies {
-                            implementation("org.apache.commons:commons-csv:1.9.0")
-                            implementation(npm("bootstrap", "5.3.3"))
-                            implementation(npm("kotlin", "1.0"))
+                            else -> {
+                                call.respond(HttpStatusCode.NotFound)
+                            }
                         }
                     }
                 }
-            }
-            """.trimIndent()
+            }.start(wait = false)
+    }
 
-        buildFile + kotlinExtension
+    @AfterEach
+    fun stopServer() {
+        server.stop(gracePeriodMillis = 0, timeoutMillis = 0)
+    }
 
-        val task = ":npmVersions"
-
+    @ParameterizedTest(name = "${ParameterizedInvocationConstants.DISPLAY_NAME_PLACEHOLDER} - Gradle Version = {0}")
+    @MethodSource("gradleVersions")
+    fun `apply NpmVersions plugin to various Gradle versions`(version: String) {
+        val fixturesDir = fixturesDir.resolve("report-npm-packages")
         val result =
-            GradleRunner
-                .create()
-                .withProjectDir(testProjectDir.toFile())
-                .withArguments(task)
-                .withPluginClasspath()
-                .build()
-        println(result.output)
-        assertThat(result.task(task)?.outcome, `is`(TaskOutcome.FAILED))
+            createBuildRunner(fixturesDir)
+                .apply {
+                    if (version != LATEST_VERSION) {
+                        withGradleVersion(version)
+                    }
+                }.build()
+
+        assertThat(
+            "Gradle version $version",
+            result.task(":npmVersions")?.outcome,
+            `is`(TaskOutcome.SUCCESS),
+        )
+    }
+
+    @Test
+    fun `report npm packages`() {
+        val fixturesDir = fixturesDir.resolve("report-npm-packages")
+        createBuildRunner(fixturesDir).build()
+
+        assertExpectedFiles(fixturesDir)
+    }
+
+    @Test
+    fun `report all reports`() {
+        val fixturesDir = fixturesDir.resolve("report-all-reports")
+        createBuildRunner(fixturesDir).build()
+
+        assertExpectedFiles(fixturesDir)
+    }
+
+    companion object {
+        @JvmStatic
+        fun gradleVersions(): Stream<Arguments> =
+            buildList {
+                add(MINIMUM_GRADLE_VERSION)
+                add(LATEST_VERSION)
+                if (System.getenv("CI") == null) {
+                    add("9.1.0")
+                    add("9.2.0")
+                    add("9.3.0")
+                    add("9.4.0")
+                    add("9.5.0")
+                }
+            }.stream().map { arguments(it) }
     }
 }
+
+private const val LATEST_VERSION = "latest"

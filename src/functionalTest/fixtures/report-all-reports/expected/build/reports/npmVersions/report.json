@@ -1,0 +1,15 @@
+{
+    "latest": [
+        {
+            "name": "kotlin",
+            "version": "1.0.0"
+        }
+    ],
+    "outdated": [
+        {
+            "name": "bootstrap",
+            "currentVersion": "5.3.3",
+            "latestVersion": "5.3.8"
+        }
+    ]
+}

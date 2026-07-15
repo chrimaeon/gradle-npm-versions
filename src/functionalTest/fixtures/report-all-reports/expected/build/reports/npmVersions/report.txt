@@ -1,0 +1,9 @@
+┌──────────────┐
+│ NPM Packages │
+└──────────────┘
+
+The following packages are using the latest version:
+ • kotlin:1.0.0
+
+The following packages have updated versions:
+ • bootstrap [5.3.3 -> 5.3.8]

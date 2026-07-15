@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packages xmlns="https://www.cmgapps.com" xsi:schemaLocation="https://www.cmgapps.com https://www.cmgapps.com/xsd/packages.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <latest>
+    <package currentVersion="1.0.0">
+      kotlin
+    </package>
+  </latest>
+  <outdated>
+    <package latestVersion="5.3.8" currentVersion="5.3.3">
+      bootstrap
+    </package>
+  </outdated>
+</packages>
