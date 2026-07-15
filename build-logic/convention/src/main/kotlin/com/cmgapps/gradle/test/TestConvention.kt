@@ -11,62 +11,80 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.testing.TestResult.ResultType
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.kotlin.dsl.KotlinClosure2
-import org.gradle.kotlin.dsl.withType
+
+private const val CSI = "\u001B["
+private const val ANSI_RED = "31"
+private const val ANSI_GREEN = "32"
+private const val ANSI_YELLOW = "33"
+private const val ANSI_BOLD = "1"
 
 class TestConvention : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
-            tasks.withType<Test> {
-                testLogging {
-                    events(TestLogEvent.FAILED, TestLogEvent.SKIPPED, TestLogEvent.PASSED)
-                }
-                afterSuite(
-                    KotlinClosure2<TestDescriptor, TestResult, Unit>(
-                        owner = this,
-                        thisObject = this,
-                        function = { desc, result ->
-                            if (desc.parent == null) {
-                                logger.logResults(result)
-                            }
-                        },
-                    ),
-                )
-            }
+        target.tasks.withType(Test::class.java).configureEach {
+            addTestListener(
+                object : TestListener {
+                    override fun afterTest(
+                        testDescriptor: TestDescriptor,
+                        result: TestResult,
+                    ) {
+                        logger.logResults(testDescriptor, result)
+                    }
+
+                    override fun beforeSuite(suite: TestDescriptor) {
+                        // NO-OP
+                    }
+
+                    override fun afterSuite(
+                        suite: TestDescriptor,
+                        result: TestResult,
+                    ) {
+                        // NO-OP
+                    }
+
+                    override fun beforeTest(testDescriptor: TestDescriptor) {
+                        // NO-OP
+                    }
+                },
+            )
         }
     }
 }
 
-const val CSI = "\u001B["
-const val ANSI_RED = "31"
-const val ANSI_GREEN = "32"
-const val ANSI_YELLOW = "33"
-const val ANSI_BOLD = "1"
-
-private fun Logger.logResults(result: TestResult) {
-    val message = "{}; {}; {}\n"
+private fun Logger.logResults(
+    desc: TestDescriptor,
+    result: TestResult,
+) {
+    val message = "{} > {} {}" + if (result.exception != null) "\n>\t{}\n" else "\n"
 
     val params =
         buildList {
-            add("${result.successfulTestCount} ${getFormattedResult(ResultType.SUCCESS)}")
-            add("${result.skippedTestCount} ${getFormattedResult(ResultType.SKIPPED)}")
-            add("${result.failedTestCount} ${getFormattedResult(ResultType.FAILURE)}")
+            add(desc.className?.substringAfterLast('.') ?: "")
+            add(desc.displayName)
+            add(getFormattedResult(result))
+            result.exception?.let {
+                add(it.message?.replace("\n", "\n>\t") ?: "")
+            }
         }.toTypedArray()
 
-    this.lifecycle(message, *params)
+    if (result.resultType == ResultType.FAILURE) {
+        this.error(message, *params)
+    } else {
+        this.lifecycle(message, *params)
+    }
 }
 
-private fun getFormattedResult(result: ResultType): String =
+private fun getFormattedResult(result: TestResult): String =
     buildString {
         val isAnsiColorTerm = System.getenv("TERM")?.lowercase()?.contains("color") ?: false
         val (color, text) =
-            when (result) {
+            when (result.resultType) {
                 ResultType.SUCCESS -> ANSI_GREEN to "PASSED"
                 ResultType.FAILURE -> ANSI_RED to "FAILED"
                 ResultType.SKIPPED -> ANSI_YELLOW to "SKIPPED"
+                null -> ANSI_YELLOW to "NO RESULT"
             }
         if (isAnsiColorTerm) {
             append(CSI)

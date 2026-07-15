@@ -33,6 +33,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.Reporting
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
@@ -114,6 +115,7 @@ internal class PackageReportContainerImpl(
         get() = getByName(XML_REPORT_NAME) as XmlReport
 }
 
+@CacheableTask
 abstract class NpmVersionTask
     @Inject
     constructor(

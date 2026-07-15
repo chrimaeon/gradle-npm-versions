@@ -51,7 +51,7 @@ class CheckNpmPackageActionShould {
                     project.objects.property(HttpClientEngine::class.java).value(
                         MockEngine { request ->
                             when {
-                                request.url.segments[0] == "my_library" ->
+                                request.url.segments[0] == "my_library" -> {
                                     respond(
                                         content =
                                             ByteReadChannel(
@@ -65,12 +65,14 @@ class CheckNpmPackageActionShould {
                                         status = HttpStatusCode.OK,
                                         headers = headersOf(HttpHeaders.ContentType, "application/json"),
                                     )
+                                }
 
-                                else ->
+                                else -> {
                                     respond(
                                         "Not Found",
                                         HttpStatusCode.NotFound,
                                     )
+                                }
                             }
                         },
                     )

@@ -6,10 +6,9 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -22,7 +21,6 @@ plugins {
     idea
     kotlin("jvm") version embeddedKotlinVersion
     kotlin("plugin.serialization") version embeddedKotlinVersion
-    alias(libs.plugins.versions)
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
     alias(libs.plugins.gradle.publish)
@@ -51,9 +49,10 @@ version = versionName
 
 testing {
     suites {
-        val test: JvmTestSuite by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
+        val test =
+            named("test", JvmTestSuite::class) {
+                useJUnitJupiter()
+            }
 
         val functionalTestSuite =
             register<JvmTestSuite>("functionalTest") {
@@ -144,11 +143,11 @@ changelog {
 }
 
 kover {
-    useJacoco()
+    useJacoco = true
     jacocoVersion = libs.versions.jacoco
     currentProject {
         sources {
-            excludedSourceSets.addAll(sourceSets["functionalTest"].name)
+            excludedSourceSets.add(sourceSets["functionalTest"].name)
         }
     }
 
@@ -156,6 +155,17 @@ kover {
         filters {
             excludes {
                 annotatedBy("kotlinx.serialization.Serializable")
+            }
+        }
+
+        total {
+            log {
+                onCheck = true
+                header = "Total Test Line Coverage"
+                groupBy = GroupingEntityType.APPLICATION
+                aggregationForGroup = AggregationType.COVERED_PERCENTAGE
+                coverageUnits = CoverageUnit.LINE
+                format = "<value>% total line coverage"
             }
         }
 
@@ -209,41 +219,31 @@ tasks {
         dependsOn("ktlint")
     }
 
-    withType<DependencyUpdatesTask> {
-        revision = "release"
+    val updateReadme =
+        register("updateReadme") {
+            description = "Updates the version in the README.md"
+            val readmeFile = rootDir.resolve("README.md")
+            val version: String = project.version as String
 
-        gradleReleaseChannel = GradleReleaseChannel.CURRENT.id
+            inputs.property("libVersion", version)
+            outputs.file(readmeFile)
 
-        rejectVersionIf {
-            listOf("alpha", "beta", "rc", "cr", "m", "preview")
-                .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-]*") }
-                .any { it.matches(candidate.version) }
+            doLast {
+                val content = readmeFile.readText()
+                val oldVersion =
+                    """id\("com.cmgapps.npm.versions"\) version "(.*)""""
+                        .toRegex(RegexOption.MULTILINE)
+                        .find(content)
+                        ?.let {
+                            it.groupValues[1]
+                        } ?: error("Cannot find oldVersion")
+
+                logger.info("Updating README.md version $oldVersion to $version")
+
+                val newContent = content.replace(oldVersion, version)
+                readmeFile.writeText(newContent)
+            }
         }
-    }
-
-    val updateReadme by registering {
-        val readmeFile = rootDir.resolve("README.md")
-        val version: String = project.version as String
-
-        inputs.property("libVersion", version)
-        outputs.file(readmeFile)
-
-        doLast {
-            val content = readmeFile.readText()
-            val oldVersion =
-                """id\("com.cmgapps.npm.versions"\) version "(.*)""""
-                    .toRegex(RegexOption.MULTILINE)
-                    .find(content)
-                    ?.let {
-                        it.groupValues[1]
-                    } ?: error("Cannot find oldVersion")
-
-            logger.info("Updating README.md version $oldVersion to $version")
-
-            val newContent = content.replace(oldVersion, version)
-            readmeFile.writeText(newContent)
-        }
-    }
 
     patchChangelog {
         dependsOn(updateReadme)
@@ -251,17 +251,20 @@ tasks {
 }
 
 dependencies {
+    @Suppress("AvoidDuplicateDependencies")
     compileOnly(libs.kotlin.gradle)
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)
     implementation(libs.semver)
 
+    testImplementation(gradleApi())
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter) {
         exclude(group = "org.hamcrest")
     }
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.hamcrest)
+    @Suppress("AvoidDuplicateDependencies")
     testImplementation(libs.kotlin.gradle)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)

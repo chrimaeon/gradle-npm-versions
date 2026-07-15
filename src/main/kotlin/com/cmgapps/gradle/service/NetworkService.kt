@@ -18,8 +18,8 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.appendPathSegments
-import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.appendAll
 import kotlinx.serialization.json.Json
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property

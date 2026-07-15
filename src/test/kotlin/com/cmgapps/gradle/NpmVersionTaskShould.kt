@@ -507,7 +507,7 @@ private class TestNetworkService(
                 project.objects.property(HttpClientEngine::class.java).value(
                     MockEngine { request ->
                         when {
-                            request.url.segments[0] == TEST_DEP_NAME ->
+                            request.url.segments[0] == TEST_DEP_NAME -> {
                                 respond(
                                     content =
                                         ByteReadChannel(
@@ -521,12 +521,14 @@ private class TestNetworkService(
                                     status = HttpStatusCode.OK,
                                     headers = headersOf(HttpHeaders.ContentType, "application/json"),
                                 )
+                            }
 
-                            else ->
+                            else -> {
                                 respond(
                                     "Not Found",
                                     HttpStatusCode.NotFound,
                                 )
+                            }
                         }
                     },
                 )
