@@ -15,6 +15,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class HtmlReportShould : OutputStreamTest() {
@@ -209,6 +210,87 @@ class HtmlReportShould : OutputStreamTest() {
             outputStream.asString(),
             `is`(expected),
         )
+    }
+
+    @Nested
+    inner class HtmlRendererShould {
+        @Test
+        fun `render all html tags`() {
+            val html =
+                html {
+                    head {
+                        title { +"NPM Versions Report" }
+                        meta(mapOf("Author" to "cmgapps"))
+                        style { +"body { font-family: sans-serif; }" }
+                    }
+                    body {
+                        pre { +"Hello World pre" }
+                        h1 { +"Hello World H1" }
+                        ul {
+                            li { +"Hello World UL" }
+                        }
+                        a(href = "https://example.com") { +"Hello World Link" }
+                        div { +"Hello World DIV" }
+                        p { +"Hello World paragraph" }
+                        table {
+                            tr {
+                                td { +"Hello World TD" }
+                            }
+                        }
+                        small { +"Hello World small" }
+                    }
+                }.toString(format = true)
+            assertThat(
+                html,
+                `is`(
+                    """
+                |<!DOCTYPE html>
+                |<html lang="en">
+                |  <head>
+                |    <title>
+                |      NPM Versions Report
+                |    </title>
+                |    <meta Author="cmgapps">
+                |    <style>
+                |      body { font-family: sans-serif; }
+                |    </style>
+                |  </head>
+                |  <body>
+                |    <pre>
+                |      Hello World pre
+                |    </pre>
+                |    <h1>
+                |      Hello World H1
+                |    </h1>
+                |    <ul>
+                |      <li>
+                |        Hello World UL
+                |      </li>
+                |    </ul>
+                |    <a href="https://example.com">Hello World Link</a>
+                |    <div>
+                |      Hello World DIV
+                |    </div>
+                |    <p>
+                |      Hello World paragraph
+                |    </p>
+                |    <table>
+                |      <tr>
+                |        <td>
+                |          Hello World TD
+                |        </td>
+                |      </tr>
+                |    </table>
+                |    <small>
+                |      Hello World small
+                |    </small>
+                |  </body>
+                |</html>
+                |
+                    """.trimMargin(),
+                ),
+            )
+        }
     }
 }
 

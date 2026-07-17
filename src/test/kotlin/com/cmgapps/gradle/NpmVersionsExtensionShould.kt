@@ -105,7 +105,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterEnabledStateConvention(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             return Stream.of(
@@ -120,7 +120,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterEnabledState(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             return Stream.of(
@@ -151,7 +151,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterEnabledStateAction(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             val plainTextAction: (Action<in Reporter>) -> Unit = extension::plainText
@@ -191,7 +191,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterOutputFileConvention(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             return Stream.of(
@@ -206,7 +206,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterOutputFile(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             return Stream.of(
@@ -221,7 +221,7 @@ class NpmVersionsExtensionShould {
         fun provideReporterOutputFileAction(): Stream<Arguments> {
             val extension =
                 ProjectBuilder.builder().build().run {
-                    object : NpmVersionsExtension(this, this.objects) {}
+                    object : NpmVersionsReportsExtension(this, this.objects) {}
                 }
 
             val plainTextAction: (Action<in Reporter>) -> Unit = extension::plainText

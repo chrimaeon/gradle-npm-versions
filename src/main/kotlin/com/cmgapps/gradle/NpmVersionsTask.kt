@@ -193,7 +193,7 @@ abstract class NpmVersionTask
             // check for valid version
             try {
                 Semver(dependency.version)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 logger.warn("Could not parse version '${dependency.version}' for package '${dependency.name}'")
                 return
             }

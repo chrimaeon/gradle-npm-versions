@@ -10,6 +10,7 @@ import com.cmgapps.gradle.service.NetworkService
 import io.ktor.http.HttpHeaders
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.reporting.SingleFileReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -20,6 +21,12 @@ class NpmVersionsPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             val npmVersionsExtension = extensions.create("npmVersions", NpmVersionsExtension::class.java)
+
+            val npmVersionReportsExtension =
+                (npmVersionsExtension as ExtensionAware).extensions.create(
+                    "reports",
+                    NpmVersionsReportsExtension::class.java,
+                )
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 val multiplatform = target.extensions.getByType(KotlinMultiplatformExtension::class.java)
@@ -42,10 +49,10 @@ class NpmVersionsPlugin : Plugin<Project> {
                         it.usesService(serviceProvider)
                         it.reports.forEach {
                             when (it.name) {
-                                PLAIN_TEXT_REPORT_NAME -> it.configureReports(npmVersionsExtension.plainText)
-                                JSON_REPORT_NAME -> it.configureReports(npmVersionsExtension.json)
-                                HTML_REPORT_NAME -> it.configureReports(npmVersionsExtension.html)
-                                XML_REPORT_NAME -> it.configureReports(npmVersionsExtension.xml)
+                                PLAIN_TEXT_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.plainText)
+                                JSON_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.json)
+                                HTML_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.html)
+                                XML_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.xml)
                                 else -> error("report configuration not provided")
                             }
                         }

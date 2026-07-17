@@ -11,10 +11,12 @@ plugins {
 
 npmVersions {
     npmRegistryUrl.set("http://localhost:8080")
-    plainText.enabled.set(true)
-    json.enabled.set(true)
-    xml.enabled.set(true)
-    html.enabled.set(true)
+    reports {
+        plainText.enabled.set(true)
+        json.enabled.set(true)
+        xml.enabled.set(true)
+        html.enabled.set(true)
+    }
 }
 
 kotlin {

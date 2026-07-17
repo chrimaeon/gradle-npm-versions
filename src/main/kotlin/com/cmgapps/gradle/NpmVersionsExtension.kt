@@ -19,11 +19,18 @@ private const val REPORT_NAME = "report"
 abstract class NpmVersionsExtension
     @Inject
     constructor(
+        objects: ObjectFactory,
+    ) {
+        val npmRegistryUrl: Property<String> =
+            objects.property(String::class.java).convention("https://registry.npmjs.org/")
+    }
+
+abstract class NpmVersionsReportsExtension
+    @Inject
+    constructor(
         project: Project,
         objects: ObjectFactory,
     ) {
-        val npmRegistryUrl: Property<String> = objects.property(String::class.java).convention("https://registry.npmjs.org/")
-
         val plainText: Reporter =
             Reporter(
                 enabled = objects.property(Boolean::class.java).convention(true),
