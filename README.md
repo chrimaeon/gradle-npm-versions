@@ -13,69 +13,11 @@ your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) proj
 
 #### Using the plugins DSL
 
-<details open="open">
-<summary>Kotlin</summary>
-
 ```kotlin
 plugins {
     id("com.cmgapps.npm.versions") version "0.5.0"
 }
 ```
-
-</details>
-
-<details>
-<summary>Groovy</summary>
-
-```groovy
-plugins {
-    id 'com.cmgapps.npm.versions' version '0.5.0'
-}
-```
-
-</details>
-
-#### Using legacy plugin application
-
-<details open="open">
-<summary>Kotlin</summary>
-
-```kotlin
-buildscript {
-    repositories {
-        maven {
-            url = uri("https://plugins.gradle.org/m2/")
-        }
-    }
-    dependencies {
-        classpath("com.cmgapps.gradle:gradle-npm-versions-plugin:0.5.0")
-    }
-}
-
-apply(plugin = "com.cmgapps.npm.versions")
-```
-
-</details>
-
-<details>
-<summary>Groovy</summary>
-
-```groovy
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.cmgapps.gradle:gradle-npm-versions-plugin:0.5.0'
-    }
-}
-
-apply plugin: 'com.cmgapps.npm.versions'
-```
-
-</details>
 
 ### Task
 
@@ -88,7 +30,8 @@ your `npm` dependencies.
 
 ### Configuration
 
-With the [npmVersions](./src/main/kotlin/com/cmgapps/gradle/NpmVersionsExtension.kt) extension you can enable the file reporters and output file location.
+With the [npmVersions](./src/main/kotlin/com/cmgapps/gradle/NpmVersionsExtension.kt) extension you can enable the file
+reporters and output file location.
 There are 4 reporters:
 
 - **Plain Text**: Same format as the console output
@@ -98,18 +41,20 @@ There are 4 reporters:
 
 ```gradle
 npmVersions {
-    plainText {
-        enabled.set(true)
-        outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
-    }
-    json {
-        enabled.set(true)
-    }
-    html {
-        enabled.set(true)
-    }
-    xml {
-        enabled.set(true)
+    reports {
+        plainText {
+            enabled.set(true)
+            outputFile.set(project.layout.buildDirectory.file("npmVersions.txt"))
+        }
+        json {
+            enabled.set(true)
+        }
+        html {
+            enabled.set(true)
+        }
+        xml {
+            enabled.set(true)
+        }
     }
 }
 ```
