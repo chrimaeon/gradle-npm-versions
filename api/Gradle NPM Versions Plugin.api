@@ -2,7 +2,6 @@ public abstract class com/cmgapps/gradle/NpmVersionTask : org/gradle/api/Default
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Lorg/gradle/api/model/ObjectFactory;)V
 	public final fun action ()V
 	public final fun configurationToCheck (Lorg/gradle/api/provider/Provider;)V
-	public final fun getNetworkService ()Lorg/gradle/api/provider/Property;
 	public final fun getOutputDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public fun getReports ()Lcom/cmgapps/gradle/PackageReportContainer;
 	public synthetic fun getReports ()Lorg/gradle/api/reporting/ReportContainer;
@@ -113,16 +112,5 @@ public abstract class com/cmgapps/gradle/reporter/TextReport : com/cmgapps/gradl
 public abstract class com/cmgapps/gradle/reporter/XmlReport : com/cmgapps/gradle/reporter/PackageSingleFileReport {
 	public fun <init> (Ljava/lang/String;)V
 	public fun writePackages (Ljava/io/OutputStream;)V
-}
-
-public abstract class com/cmgapps/gradle/service/NetworkService : org/gradle/api/services/BuildService {
-	public fun <init> ()V
-	public final fun get ([Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public abstract interface class com/cmgapps/gradle/service/NetworkService$Params : org/gradle/api/services/BuildServiceParameters {
-	public abstract fun getAdditionalHeaders ()Lorg/gradle/api/provider/MapProperty;
-	public abstract fun getBaseUrl ()Lorg/gradle/api/provider/Property;
-	public abstract fun getEngine ()Lorg/gradle/api/provider/Property;
 }
 

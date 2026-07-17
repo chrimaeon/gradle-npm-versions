@@ -27,7 +27,7 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.slf4j.LoggerFactory
 
-abstract class NetworkService : BuildService<NetworkService.Params> {
+internal abstract class NetworkService : BuildService<NetworkService.Params> {
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val client: HttpClient
         get() =

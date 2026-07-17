@@ -127,7 +127,7 @@ abstract class NpmVersionTask
         internal abstract val npmDependencies: ListProperty<NpmCoordinates>
 
         @get:Internal
-        val networkService: Property<NetworkService> = objects.property(NetworkService::class.java)
+        internal val networkService: Property<NetworkService> = objects.property(NetworkService::class.java)
 
         @get:OutputDirectory
         val outputDirectory: DirectoryProperty =
