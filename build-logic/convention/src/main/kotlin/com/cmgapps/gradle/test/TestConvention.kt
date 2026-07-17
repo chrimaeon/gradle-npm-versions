@@ -21,6 +21,7 @@ private const val ANSI_GREEN = "32"
 private const val ANSI_YELLOW = "33"
 private const val ANSI_BOLD = "1"
 
+@Suppress("unused")
 class TestConvention : Plugin<Project> {
     override fun apply(target: Project) {
         target.tasks.withType(Test::class.java).configureEach {
