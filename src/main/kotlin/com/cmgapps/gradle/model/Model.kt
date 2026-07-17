@@ -16,7 +16,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.semver4j.Semver
 
 @Serializable
-data class NpmResponse(
+internal data class NpmResponse(
     val name: String,
     val version: String,
 )
@@ -30,7 +30,7 @@ data class Package(
     val availableVersion: Semver,
 )
 
-class SemverSerializer : KSerializer<Semver> {
+internal class SemverSerializer : KSerializer<Semver> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ComparableVersion", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Semver =

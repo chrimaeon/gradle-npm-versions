@@ -12,6 +12,7 @@ import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import java.util.Date
 import java.util.Properties
 
@@ -126,6 +127,10 @@ kotlin {
         languageVersion = KotlinVersion.KOTLIN_2_2
         jvmTarget = JvmTarget.JVM_17
         jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+    }
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+        enabled = true
     }
 }
 

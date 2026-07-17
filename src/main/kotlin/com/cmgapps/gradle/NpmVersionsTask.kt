@@ -221,7 +221,7 @@ abstract class NpmVersionTask
             }
     }
 
-abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> {
+internal abstract class CheckNpmPackageAction : WorkAction<CheckNpmPackageAction.Params> {
     @OptIn(ExperimentalSerializationApi::class)
     override fun execute() {
         val outputDirectory = parameters.outputDirectory

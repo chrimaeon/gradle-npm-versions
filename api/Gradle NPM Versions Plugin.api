@@ -1,0 +1,128 @@
+public abstract class com/cmgapps/gradle/NpmVersionTask : org/gradle/api/DefaultTask, org/gradle/api/reporting/Reporting {
+	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Lorg/gradle/api/model/ObjectFactory;)V
+	public final fun action ()V
+	public final fun configurationToCheck (Lorg/gradle/api/provider/Provider;)V
+	public final fun getNetworkService ()Lorg/gradle/api/provider/Property;
+	public final fun getOutputDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public fun getReports ()Lcom/cmgapps/gradle/PackageReportContainer;
+	public synthetic fun getReports ()Lorg/gradle/api/reporting/ReportContainer;
+	public fun reports (Lgroovy/lang/Closure;)Lcom/cmgapps/gradle/PackageReportContainer;
+	public synthetic fun reports (Lgroovy/lang/Closure;)Lorg/gradle/api/reporting/ReportContainer;
+	public fun reports (Lorg/gradle/api/Action;)Lcom/cmgapps/gradle/PackageReportContainer;
+	public synthetic fun reports (Lorg/gradle/api/Action;)Lorg/gradle/api/reporting/ReportContainer;
+}
+
+public abstract class com/cmgapps/gradle/NpmVersionsExtension {
+	public fun <init> (Lorg/gradle/api/model/ObjectFactory;)V
+	public final fun getNpmRegistryUrl ()Lorg/gradle/api/provider/Property;
+}
+
+public final class com/cmgapps/gradle/NpmVersionsPlugin : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public abstract class com/cmgapps/gradle/NpmVersionsReportsExtension {
+	public fun <init> (Lorg/gradle/api/Project;Lorg/gradle/api/model/ObjectFactory;)V
+	public final fun getHtml ()Lcom/cmgapps/gradle/Reporter;
+	public final fun getJson ()Lcom/cmgapps/gradle/Reporter;
+	public final fun getPlainText ()Lcom/cmgapps/gradle/Reporter;
+	public final fun getXml ()Lcom/cmgapps/gradle/Reporter;
+	public final fun html (Lorg/gradle/api/Action;)V
+	public final fun json (Lorg/gradle/api/Action;)V
+	public final fun plainText (Lorg/gradle/api/Action;)V
+	public final fun xml (Lorg/gradle/api/Action;)V
+}
+
+public abstract interface class com/cmgapps/gradle/PackageReportContainer : org/gradle/api/reporting/ReportContainer {
+	public abstract fun getHtml ()Lcom/cmgapps/gradle/reporter/HtmlReport;
+	public abstract fun getJson ()Lcom/cmgapps/gradle/reporter/JsonReport;
+	public abstract fun getPlainText ()Lcom/cmgapps/gradle/reporter/TextReport;
+	public abstract fun getXml ()Lcom/cmgapps/gradle/reporter/XmlReport;
+}
+
+public final class com/cmgapps/gradle/Reporter {
+	public fun <init> (Lorg/gradle/api/provider/Property;Lorg/gradle/api/file/RegularFileProperty;)V
+	public final fun getEnabled ()Lorg/gradle/api/provider/Property;
+	public final fun getOutputFile ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public final class com/cmgapps/gradle/model/Package {
+	public static final field Companion Lcom/cmgapps/gradle/model/Package$Companion;
+	public fun <init> (Ljava/lang/String;Lorg/semver4j/Semver;Lorg/semver4j/Semver;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/semver4j/Semver;
+	public final fun component3 ()Lorg/semver4j/Semver;
+	public final fun copy (Ljava/lang/String;Lorg/semver4j/Semver;Lorg/semver4j/Semver;)Lcom/cmgapps/gradle/model/Package;
+	public static synthetic fun copy$default (Lcom/cmgapps/gradle/model/Package;Ljava/lang/String;Lorg/semver4j/Semver;Lorg/semver4j/Semver;ILjava/lang/Object;)Lcom/cmgapps/gradle/model/Package;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvailableVersion ()Lorg/semver4j/Semver;
+	public final fun getCurrentVersion ()Lorg/semver4j/Semver;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/cmgapps/gradle/model/Package$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/cmgapps/gradle/model/Package$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/cmgapps/gradle/model/Package;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/cmgapps/gradle/model/Package;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class com/cmgapps/gradle/model/Package$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract class com/cmgapps/gradle/reporter/HtmlReport : com/cmgapps/gradle/reporter/PackageSingleFileReport {
+	public fun <init> (Ljava/lang/String;)V
+	public fun writePackages (Ljava/io/OutputStream;)V
+}
+
+public abstract class com/cmgapps/gradle/reporter/JsonReport : com/cmgapps/gradle/reporter/PackageSingleFileReport {
+	public fun <init> (Ljava/lang/String;)V
+	public fun writePackages (Ljava/io/OutputStream;)V
+}
+
+public abstract interface class com/cmgapps/gradle/reporter/PackageReport {
+	public abstract fun getLatest ()Ljava/util/List;
+	public abstract fun getOutdated ()Ljava/util/List;
+	public abstract fun setLatest (Ljava/util/List;)V
+	public abstract fun setOutdated (Ljava/util/List;)V
+}
+
+public abstract class com/cmgapps/gradle/reporter/PackageSingleFileReport : com/cmgapps/gradle/reporter/PackageReport, org/gradle/api/reporting/SingleFileReport {
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun configure (Lgroovy/lang/Closure;)Ljava/lang/Object;
+	public fun configure (Lgroovy/lang/Closure;)Lorg/gradle/api/reporting/Report;
+	public fun getDisplayName ()Ljava/lang/String;
+	public fun getName ()Ljava/lang/String;
+	public fun getOutputType ()Lorg/gradle/api/reporting/Report$OutputType;
+	public abstract fun writePackages (Ljava/io/OutputStream;)V
+}
+
+public abstract class com/cmgapps/gradle/reporter/TextReport : com/cmgapps/gradle/reporter/PackageSingleFileReport {
+	public fun <init> (Ljava/lang/String;)V
+	public fun writePackages (Ljava/io/OutputStream;)V
+}
+
+public abstract class com/cmgapps/gradle/reporter/XmlReport : com/cmgapps/gradle/reporter/PackageSingleFileReport {
+	public fun <init> (Ljava/lang/String;)V
+	public fun writePackages (Ljava/io/OutputStream;)V
+}
+
+public abstract class com/cmgapps/gradle/service/NetworkService : org/gradle/api/services/BuildService {
+	public fun <init> ()V
+	public final fun get ([Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/cmgapps/gradle/service/NetworkService$Params : org/gradle/api/services/BuildServiceParameters {
+	public abstract fun getAdditionalHeaders ()Lorg/gradle/api/provider/MapProperty;
+	public abstract fun getBaseUrl ()Lorg/gradle/api/provider/Property;
+	public abstract fun getEngine ()Lorg/gradle/api/provider/Property;
+}
+

@@ -10,7 +10,6 @@ import com.cmgapps.gradle.model.Package
 import groovy.lang.Closure
 import org.gradle.api.reporting.Report
 import org.gradle.api.reporting.SingleFileReport
-import org.gradle.util.internal.ConfigureUtil
 import java.io.OutputStream
 
 interface PackageReport {
@@ -34,9 +33,8 @@ abstract class PackageSingleFileReport(
 
     override fun getOutputType(): Report.OutputType = Report.OutputType.FILE
 
-    override fun configure(configure: Closure<*>): Report =
-        ConfigureUtil.configureSelf(
-            configure,
-            this,
-        )
+    override fun configure(cl: Closure<*>): Report {
+        cl.call(this)
+        return this
+    }
 }
