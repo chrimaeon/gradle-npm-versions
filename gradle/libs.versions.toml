@@ -46,6 +46,6 @@ ktlint-cli = "com.pinterest.ktlint:ktlint-cli:1.8.0"
 
 semver = "org.semver4j:semver4j:6.0.0"
 
-networknt-jsonschemavalidator = "com.networknt:json-schema-validator:3.0.6"
+networknt-jsonschemavalidator = "com.networknt:json-schema-validator:3.0.7"
 
 java-diff-utils = "io.github.java-diff-utils:java-diff-utils:4.17"
