@@ -18,7 +18,7 @@ buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.10" }
 
 [versions]
 
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 gradle = "9.6.1"
 ktor = "3.5.2"
 jacoco = "0.8.13"
