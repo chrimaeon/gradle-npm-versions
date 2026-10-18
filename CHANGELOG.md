@@ -6,18 +6,24 @@
 
 ### Changed
 
-- Task is now configuration-cache compatible
-- Updated dependencies
-
 ### Deprecated
 
 ### Removed
 
-- Groovy DSL snippets from documentation
-
 ### Fixed
 
 ### Security
+
+## 0.6.0
+
+### Changed
+
+- Task is now configuration-cache compatible
+- Updated dependencies
+
+### Removed
+
+- Groovy DSL snippets from documentation
 
 ## 0.5.0
 

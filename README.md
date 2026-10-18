@@ -15,7 +15,7 @@ your [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) proj
 
 ```kotlin
 plugins {
-    id("com.cmgapps.npm.versions") version "0.5.0"
+    id("com.cmgapps.npm.versions") version "0.6.0"
 }
 ```
 
