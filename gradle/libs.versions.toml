@@ -13,13 +13,13 @@ ktor-client = [
 
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
 gradle-publish = "com.gradle.plugin-publish:2.2.1"
-kotlinx-kover = "org.jetbrains.kotlinx.kover:0.9.9"
-buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.1.0" }
+kotlinx-kover = "org.jetbrains.kotlinx.kover:0.9.11"
+buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.1.2" }
 
 [versions]
 
-kotlin = "2.4.20"
-gradle = "9.6.1"
+kotlin = "2.4.21"
+gradle = "9.8.1"
 ktor = "3.6.0"
 jacoco = "0.8.13"
 
@@ -46,6 +46,6 @@ ktlint-cli = "com.pinterest.ktlint:ktlint-cli:1.8.0"
 
 semver = "org.semver4j:semver4j:6.0.0"
 
-networknt-jsonschemavalidator = "com.networknt:json-schema-validator:3.0.7"
+networknt-jsonschemavalidator = "com.networknt:json-schema-validator:3.0.8"
 
-java-diff-utils = "io.github.java-diff-utils:java-diff-utils:4.17"
+java-diff-utils = "io.github.java-diff-utils:java-diff-utils:4.18"

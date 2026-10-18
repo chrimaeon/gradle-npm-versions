@@ -9,6 +9,7 @@
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import org.gradle.plugin.compatibility.compatibility
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -97,6 +98,12 @@ gradlePlugin {
             displayName = pomName
             description = pomDescription
             tags.set(listOf("multiplatform", "Kotlin/JS", "NPM", "versioning"))
+
+            compatibility {
+                features {
+                    this.configurationCache = true
+                }
+            }
         }
     }
 
@@ -129,9 +136,7 @@ kotlin {
         jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
     }
     @OptIn(ExperimentalAbiValidation::class)
-    abiValidation {
-        enabled = true
-    }
+    abiValidation
 }
 
 publishing {

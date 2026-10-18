@@ -68,52 +68,54 @@ internal const val JSON_REPORT_NAME = "json"
 internal const val HTML_REPORT_NAME = "html"
 internal const val XML_REPORT_NAME = "xml"
 
-internal class PackageReportContainerImpl(
-    private val objects: ObjectFactory,
-) : NamedDomainObjectSet<PackageSingleFileReport> by objects.namedDomainObjectSet(PackageSingleFileReport::class.java),
-    PackageReportContainer {
-    init {
-        add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME)
-        add(JsonReport::class.java, JSON_REPORT_NAME)
-        add(HtmlReport::class.java, HTML_REPORT_NAME)
-        add(XmlReport::class.java, XML_REPORT_NAME)
+internal abstract class PackageReportContainerImpl
+    @Inject
+    constructor(
+        private val objects: ObjectFactory,
+    ) : NamedDomainObjectSet<PackageSingleFileReport> by objects.namedDomainObjectSet(PackageSingleFileReport::class.java),
+        PackageReportContainer {
+        init {
+            add(TextReport::class.java, PLAIN_TEXT_REPORT_NAME)
+            add(JsonReport::class.java, JSON_REPORT_NAME)
+            add(HtmlReport::class.java, HTML_REPORT_NAME)
+            add(XmlReport::class.java, XML_REPORT_NAME)
+        }
+
+        override fun getEnabled(): NamedDomainObjectSet<PackageSingleFileReport> = enabled
+
+        @Override
+        override fun getEnabledReports(): MutableMap<String, PackageSingleFileReport> = enabled.asMap
+
+        private val enabled: NamedDomainObjectSet<PackageSingleFileReport> =
+            matching { element -> element.required.get() }
+
+        override fun configure(cl: Closure<*>?): ReportContainer<PackageSingleFileReport> {
+            ConfigureUtil.configureSelf(
+                cl,
+                this,
+            )
+            return this
+        }
+
+        private fun add(
+            clazz: Class<out PackageSingleFileReport>,
+            name: String,
+        ) {
+            add(objects.newInstance(clazz, name))
+        }
+
+        override val plainText: TextReport
+            get() = withType(TextReport::class.java).getByName(PLAIN_TEXT_REPORT_NAME)
+
+        override val json: JsonReport
+            get() = withType(JsonReport::class.java).getByName(JSON_REPORT_NAME)
+
+        override val html: HtmlReport
+            get() = withType(HtmlReport::class.java).getByName(HTML_REPORT_NAME)
+
+        override val xml: XmlReport
+            get() = withType(XmlReport::class.java).getByName(XML_REPORT_NAME)
     }
-
-    override fun getEnabled(): NamedDomainObjectSet<PackageSingleFileReport> = enabled
-
-    @Override
-    override fun getEnabledReports(): MutableMap<String, PackageSingleFileReport> = enabled.asMap
-
-    private val enabled: NamedDomainObjectSet<PackageSingleFileReport> =
-        matching { element -> element.required.get() }
-
-    override fun configure(cl: Closure<*>?): ReportContainer<PackageSingleFileReport> {
-        ConfigureUtil.configureSelf(
-            cl,
-            this,
-        )
-        return this
-    }
-
-    private fun add(
-        clazz: Class<out PackageSingleFileReport>,
-        name: String,
-    ) {
-        add(objects.newInstance(clazz, name))
-    }
-
-    override val plainText: TextReport
-        get() = getByName(PLAIN_TEXT_REPORT_NAME) as TextReport
-
-    override val json: JsonReport
-        get() = getByName(JSON_REPORT_NAME) as JsonReport
-
-    override val html: HtmlReport
-        get() = getByName(HTML_REPORT_NAME) as HtmlReport
-
-    override val xml: XmlReport
-        get() = getByName(XML_REPORT_NAME) as XmlReport
-}
 
 @CacheableTask
 abstract class NpmVersionTask
@@ -205,7 +207,7 @@ abstract class NpmVersionTask
             }
         }
 
-        private val reports: PackageReportContainer = PackageReportContainerImpl(project.objects)
+        private val reports: PackageReportContainer = objects.newInstance(PackageReportContainerImpl::class.java)
 
         @Internal
         override fun getReports(): PackageReportContainer = reports

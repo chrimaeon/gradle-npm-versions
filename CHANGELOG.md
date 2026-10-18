@@ -7,7 +7,7 @@
 ### Changed
 
 - Task is now configuration-cache compatible
-- Updated dependencies (Ktor 3.3.3, Kotlin 2.3.0, JUnit 6)
+- Updated dependencies
 
 ### Deprecated
 
