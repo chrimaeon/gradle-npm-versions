@@ -20,7 +20,7 @@ buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.1.2" }
 
 kotlin = "2.4.21"
 gradle = "9.8.1"
-ktor = "3.6.0"
+ktor = "3.6.1"
 jacoco = "0.8.13"
 
 [libraries]
