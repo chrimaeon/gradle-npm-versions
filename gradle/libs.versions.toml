@@ -26,7 +26,7 @@ jacoco = "0.8.13"
 [libraries]
 
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
+kotlin-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0"
 kotlinx-coroutines-test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0"
 ktor-client-jvm = { module = "io.ktor:ktor-client-apache5", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
