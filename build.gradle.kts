@@ -21,8 +21,8 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     idea
-    kotlin("jvm") version embeddedKotlinVersion
-    kotlin("plugin.serialization") version embeddedKotlinVersion
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     id("ktlint")
     alias(libs.plugins.jetbrains.changelog)
     alias(libs.plugins.gradle.publish)
@@ -136,7 +136,7 @@ kotlin {
         jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
     }
     @OptIn(ExperimentalAbiValidation::class)
-    abiValidation
+    abiValidation()
 }
 
 publishing {
@@ -261,7 +261,6 @@ tasks {
 }
 
 dependencies {
-    @Suppress("AvoidDuplicateDependencies")
     compileOnly(libs.kotlin.gradle)
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)
@@ -274,7 +273,6 @@ dependencies {
     }
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.hamcrest)
-    @Suppress("AvoidDuplicateDependencies")
     testImplementation(libs.kotlin.gradle)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)

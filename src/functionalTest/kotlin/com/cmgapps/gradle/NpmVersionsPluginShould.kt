@@ -128,6 +128,7 @@ class NpmVersionsPluginShould {
                     add("9.5.0")
                     add("9.6.0")
                     add("9.7.0")
+                    add("9.8.0")
                 }
             }.stream().map { arguments(it) }
     }
