@@ -41,18 +41,18 @@ class NpmVersionsPlugin : Plugin<Project> {
                     tasks.register(
                         "npmVersions",
                         NpmVersionTask::class.java,
-                    ) {
-                        it.outputs.upToDateWhen { false }
-                        it.group = "help"
-                        it.outputDirectory.set(layout.buildDirectory.dir("intermediates/gradle-npm-version"))
-                        it.networkService.set(serviceProvider)
-                        it.usesService(serviceProvider)
-                        it.reports.forEach {
-                            when (it.name) {
-                                PLAIN_TEXT_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.plainText)
-                                JSON_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.json)
-                                HTML_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.html)
-                                XML_REPORT_NAME -> it.configureReports(npmVersionReportsExtension.xml)
+                    ) { task ->
+                        task.outputs.upToDateWhen { false }
+                        task.group = "help"
+                        task.outputDirectory.set(layout.buildDirectory.dir("intermediates/gradle-npm-version"))
+                        task.networkService.set(serviceProvider)
+                        task.usesService(serviceProvider)
+                        task.reports.forEach { report ->
+                            when (report.name) {
+                                PLAIN_TEXT_REPORT_NAME -> report.configureReports(npmVersionReportsExtension.plainText)
+                                JSON_REPORT_NAME -> report.configureReports(npmVersionReportsExtension.json)
+                                HTML_REPORT_NAME -> report.configureReports(npmVersionReportsExtension.html)
+                                XML_REPORT_NAME -> report.configureReports(npmVersionReportsExtension.xml)
                                 else -> error("report configuration not provided")
                             }
                         }
